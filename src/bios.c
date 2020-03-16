@@ -1,4 +1,5 @@
 #include "bios.h"
+#include "player.h"
 
 /*	--	 main functions	--	*/
 void bios_init(bios *kernel,u32 w,u32 h)
@@ -18,22 +19,34 @@ void bios_init(bios *kernel,u32 w,u32 h)
 	kernel->keystate = SDL_GetKeyState(NULL);
 
 	/*	--	mokokene init	--	*/
-	// fb init
+	// fb
 	kernel->fb = malloc(sizeof(keine));
-	keine *fb = kernel->fb;
-	keine_init(fb,w,h,KEINE_PIXELFMT_RGB15);
-	// img init
 	kernel->img_bank = malloc(sizeof(keine*)*0x10);
-	for(u32 i=0; i<0x10; i++) kernel->img_bank[i] = NULL;
-}
+	keine_init(kernel->fb,w,h,KEINE_PIXELFMT_RGB15);
 
+	/*	--	game init	--	*/
+	kernel->plrs = malloc(sizeof(player)*4);
+	kernel->bgs = malloc(sizeof(kappamap)*4);
+	// player
+	player *plrs = kernel->plrs;
+	for(u32 i=0; i<4; i++) player_init(&plrs[i],kernel);
+	// maps
+	kappamap *bgs = kernel->bgs;
+	bgs[0] = kmap_new(32,32);
+}
 void bios_loadimg(bios *kernel,u32 index,char *fname,keine_pixelfmt fmt)
 {
+	// load image
+	uint32_t start = SDL_GetTicks();
 	kernel->img_bank[index] = malloc(sizeof(keine));
 	keine *curimg = kernel->img_bank[index];
 	keine_loadimg(curimg,fname,fmt);
-	u32 imgsize = (u32)(sizeof(keine) + keine_imgsize(curimg));
-	printf("img_bank[%04X]: %04X:%04X\n",index,imgsize>>16,imgsize&0xFFFF); 
+	// print info
+	u32 loadtime = SDL_GetTicks() - start;
+	u64 addr = (u64)curimg;
+	printf("<image loaded> [%04X] [%04lX:%04lX] [load time: %04X] '%s'\n",
+		index,addr>>16,addr&65535,loadtime,fname
+	);
 }
 
 /*	--	update funcs	--	*/
@@ -50,20 +63,21 @@ void bios_boot(bios *kernel)
 		bios_flip(kernel);
 	}
 }
-
 void bios_update(bios *kernel)
 {
+	// vars
+	player *plrs = kernel->plrs;
 	// update input
 	SDL_PumpEvents();
 	bios_checkquit(kernel);
+	// update player
+	player_updt(&plrs[0]);
 }
-
 void bios_checkquit(bios *kernel)
 {
 	kernel->quit = kernel->keystate[SDLK_ESCAPE];
 }
 
-keine *testimg = NULL;
 /*	--	draw funcs	--	*/
 void bios_draw(bios *kernel)
 {
@@ -71,14 +85,13 @@ void bios_draw(bios *kernel)
 	keine *fb = kernel->fb;
 	uint32_t time = kernel->time;
 	keine **img_bank = kernel->img_bank;
-	// clearing
-	keine_clear(kernel->fb);
-	bios_clearscreen(kernel);
-	// drawing some rectangle lmao
-	if(testimg == NULL)
-	{ testimg = img_bank[1]; }
-}
 
+	player *plrs = kernel->plrs;
+	// clearing
+	bios_clearscreen(kernel);
+	// player drawin
+	player_draw(&plrs[0]);
+}
 void bios_blitkene(bios *kernel)
 {
 	keine *curfb = kernel->fb;
@@ -99,7 +112,6 @@ void bios_blitkene(bios *kernel)
 		}
 	}
 }
-
 void bios_clearscreen(bios *kernel)
 {
 	SDL_Surface *window = kernel->window;
@@ -108,8 +120,9 @@ void bios_clearscreen(bios *kernel)
 	SDL_FillRect(window,&windowrect,
 		SDL_MapRGB(window->format,0,0,0)
 	);
+	// clear fb
+	keine_clear(kernel->fb);
 }
-
 void bios_flip(bios *kernel)
 {
 	SDL_Flip(kernel->window);
@@ -117,4 +130,6 @@ void bios_flip(bios *kernel)
 	kernel->lasttick = SDL_GetTicks();
 	kernel->time++;
 }
+
+
 

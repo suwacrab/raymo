@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <sys/resource.h>
 
 #include <inttypes.h>
 #include <time.h>
@@ -10,7 +11,6 @@
 #include <wchar.h>
 #include <string.h>
 #include <ctype.h>
-
 #include <math.h>
 
 #ifndef KBASE_H
@@ -40,7 +40,7 @@ typedef u8 pix8;
 // KB = 1024 bytes
 // MB = 1024 KB
 #define KBSIZE(n) ( (sizeof(u8)*1024) * (n) )
-#define MBSIZE(n) ( KBSIZE(1024) * n )
+#define MBSIZE(n) ( KBSIZE(1024) * (n) )
 
 /*	--	ranges	--	*/
 INLINE s32 clamp(s32 x,s32 min,s32 max) // clamps x between min & max

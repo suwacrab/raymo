@@ -21,9 +21,10 @@ int main(void)
 
 void init_eys()
 {
-	eys_bios = (bios*)malloc(sizeof(bios));
+	eys_bios = malloc( MBSIZE(2) );
 	bios_init(eys_bios,WIDTH,HEIGHT);
 	bios_loadimg(eys_bios,0x00,"gfx/testtex.png",KEINE_PIXELFMT_RGB15);
 	bios_loadimg(eys_bios,0x01,"gfx/testtile.png",KEINE_PIXELFMT_RGB15);
+	bios_loadimg(eys_bios,0x02,"gfx/raymo.png",KEINE_PIXELFMT_RGB15);
 }
 

@@ -1,12 +1,17 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_mixer.h>
+
 #include "sinlut.h"
-#include "keine.h"
-#include "mokou.h"
+#include "fade.h"
 #include "kbase.h"
 #include "matrix.h"
-#include "fade.h"
+#include "kappamap.h"
+
+#include "keine.h"
+#include "mokou.h"
+
+struct player;
 
 #ifndef BIOS_H
 #define BIOS_H
@@ -20,11 +25,15 @@ typedef struct bios {
 	// event vars
 	SDL_Event inpevent; // event for input
 	uint8_t *keystate; // current key state
+	VEC2 mousestate; // mouse state
 	uint32_t time; // time in frames
 	uint32_t lasttick; // last tick
 	bool quit; // quit flag
 	// asset vars
 	keine **img_bank;
+	// game vars
+	struct player *plrs;
+	kappamap *bgs;
 } bios;
 
 /*	--	main funcs	--	*/

@@ -28,7 +28,6 @@ keine *keine_init(keine *yago,u32 w,u32 h,keine_pixelfmt fmt)
 keine *keine_loadimg(keine *yago,const char *fname,keine_pixelfmt fmt)
 {
 	// vars n shit
-	printf("loading image '%s'...   ",fname);
 	SDL_Surface *loadimg = NULL; // loaded img
 	SDL_Surface *convimg = NULL; // converted img
 	// loadin
@@ -97,7 +96,6 @@ keine *keine_loadimg(keine *yago,const char *fname,keine_pixelfmt fmt)
 		}
 	}
 	
-	printf("image loaded! [%p] [%04X,%04X]\n",yago,yago->w,yago->h);
 	// return the loaded img
 	return yago;
 }

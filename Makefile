@@ -3,8 +3,10 @@ CC = gcc
 LIBS = -lm -lSDL -lSDL_image -lSDL_mixer
 INCLUDE = -I. -I./src
 # obj shit
-OBJS := src/main.o src/bios.o src/keine.o src/mokou.o
+OBJS := src/main.o src/bios.o src/keine.o src/mokou.o src/kappamap.o
+OBJS += src/player.o
 OBJS += src/sinlut.o src/fade.o
+
 NAME = build/raymo.out
 CPPFLAGS += -g
 
@@ -16,3 +18,5 @@ $(NAME): $(OBJS)
 
 clean:
 	rm $(OBJS)
+	rm $(NAME)
+
