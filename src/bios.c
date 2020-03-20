@@ -20,6 +20,7 @@ void bios_init(bios *kernel,u32 w,u32 h)
 
 	/*	--	mokokene init	--	*/
 	// fb
+	kernel->fb = malloc(sizeof(keine));
 	keine_init(kernel->fb,w,h,KEINE_PIXELFMT_RGB15);
 }
 
@@ -38,23 +39,11 @@ void bios_init(bios *kernel,u32 w,u32 h)
 	);
 }*/
 
-/*	--	update funcs	--	*/
-void bios_boot(bios *kernel)
-{
-	while( !kernel->quit )
-	{
-		// update & draw
-		kernel->lasttick = SDL_GetTicks();
-		kernel->ftimer = 0;
-		bios_update(kernel);
-		bios_draw(kernel);
-		// vsync
-		bios_blitkene(kernel);
-		bios_flip(kernel);
-	}
-}
 void bios_update(bios *kernel)
 {
+	// update ticks
+	kernel->lasttick = SDL_GetTicks();
+	kernel->ftimer = 0;
 	// update input
 	SDL_PumpEvents();
 	bios_checkquit(kernel);
@@ -63,16 +52,7 @@ void bios_checkquit(bios *kernel)
 {
 	kernel->quit = kernel->keystate[SDLK_ESCAPE];
 }
-
 /*	--	draw funcs	--	*/
-void bios_draw(bios *kernel)
-{
-	// vars
-	keine *fb = kernel->fb;
-	uint32_t time = kernel->time;
-	// clearing
-	bios_clearscreen(kernel);
-}
 void bios_blitkene(bios *kernel)
 {
 	keine *curfb = kernel->fb;
@@ -120,6 +100,4 @@ void bios_flip(bios *kernel)
 	SDL_Flip(kernel->window);
 	kernel->time++;
 }
-
-
 
