@@ -28,12 +28,10 @@ typedef struct bios {
 	VEC2 mousestate; // mouse state
 	uint32_t time; // time in frames
 	uint32_t lasttick; // last tick
-	bool quit; // quit flag
-	// asset vars
-	keine **img_bank;
+	uint32_t ftimer;
+	bool quit; // quit flag;
 	// game vars
-	struct player *plrs;
-	kappamap *bgs;
+	u8 ram[ MBSIZE(4) ];
 } bios;
 
 /*	--	main funcs	--	*/

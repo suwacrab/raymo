@@ -20,21 +20,10 @@ void bios_init(bios *kernel,u32 w,u32 h)
 
 	/*	--	mokokene init	--	*/
 	// fb
-	kernel->fb = malloc(sizeof(keine));
-	kernel->img_bank = malloc(sizeof(keine*)*0x10);
 	keine_init(kernel->fb,w,h,KEINE_PIXELFMT_RGB15);
-
-	/*	--	game init	--	*/
-	kernel->plrs = malloc(sizeof(player)*4);
-	kernel->bgs = malloc(sizeof(kappamap)*4);
-	// player
-	player *plrs = kernel->plrs;
-	for(u32 i=0; i<4; i++) player_init(&plrs[i],kernel);
-	// maps
-	kappamap *bgs = kernel->bgs;
-	bgs[0] = kmap_new(32,32);
 }
-void bios_loadimg(bios *kernel,u32 index,char *fname,keine_pixelfmt fmt)
+
+/*void bios_loadimg(bios *kernel,u32 index,char *fname,keine_pixelfmt fmt)
 {
 	// load image
 	uint32_t start = SDL_GetTicks();
@@ -47,15 +36,16 @@ void bios_loadimg(bios *kernel,u32 index,char *fname,keine_pixelfmt fmt)
 	printf("<image loaded> [%04X] [%04lX:%04lX] [load time: %04X] '%s'\n",
 		index,addr>>16,addr&65535,loadtime,fname
 	);
-}
+}*/
 
 /*	--	update funcs	--	*/
 void bios_boot(bios *kernel)
 {
-	kernel->lasttick = SDL_GetTicks();
 	while( !kernel->quit )
 	{
 		// update & draw
+		kernel->lasttick = SDL_GetTicks();
+		kernel->ftimer = 0;
 		bios_update(kernel);
 		bios_draw(kernel);
 		// vsync
@@ -65,13 +55,9 @@ void bios_boot(bios *kernel)
 }
 void bios_update(bios *kernel)
 {
-	// vars
-	player *plrs = kernel->plrs;
 	// update input
 	SDL_PumpEvents();
 	bios_checkquit(kernel);
-	// update player
-	player_updt(&plrs[0]);
 }
 void bios_checkquit(bios *kernel)
 {
@@ -84,13 +70,8 @@ void bios_draw(bios *kernel)
 	// vars
 	keine *fb = kernel->fb;
 	uint32_t time = kernel->time;
-	keine **img_bank = kernel->img_bank;
-
-	player *plrs = kernel->plrs;
 	// clearing
 	bios_clearscreen(kernel);
-	// player drawin
-	player_draw(&plrs[0]);
 }
 void bios_blitkene(bios *kernel)
 {
@@ -125,9 +106,18 @@ void bios_clearscreen(bios *kernel)
 }
 void bios_flip(bios *kernel)
 {
+	uint32_t fps = 10;
+	uint32_t ftime = SDL_GetTicks() - kernel->lasttick;
+	uint32_t ftimer = kernel->ftimer + ftime;
+	if( ftimer < (SDL_SECOND/fps) )
+	{
+		// scene: lasttick is 0 and curtick is 2
+		// frames are 10, so u ned to wait (frame-curtick), or 8
+		u32 ftime = (SDL_SECOND/fps) - ftimer;
+		printf("%02d %02d\n",ftime,SDL_SECOND/fps);
+		SDL_Delay(ftime);
+	}
 	SDL_Flip(kernel->window);
-	SDL_Delay( SDL_SECOND/50 );
-	kernel->lasttick = SDL_GetTicks();
 	kernel->time++;
 }
 

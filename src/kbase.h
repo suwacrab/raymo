@@ -17,6 +17,8 @@
 #define KBASE_H
 
 // misc
+#define ALIGN(n) __attribute__((aligned(n)))
+#define PACKED __attribute__((packed))
 #define INLINE static inline
 #define SDL_SECOND (1000)
 
@@ -36,7 +38,6 @@ typedef int64_t s64;
 typedef u8 byte;
 typedef u8 pix8;
 
-// NOTE:
 // KB = 1024 bytes
 // MB = 1024 KB
 #define KBSIZE(n) ( (sizeof(u8)*1024) * (n) )
@@ -81,8 +82,8 @@ INLINE void str_lower(char *str,u32 len)
 /*	--	fixed-point types	--	*/
 typedef s32 FIXED;
 
-INLINE FIXED int2fx(FIXED n,FIXED s) { return n<<s; }
-INLINE FIXED fx2int(FIXED n,FIXED s) { return n>>s; }
+#define int2fx(n,s) ( (n)<<(s) )
+#define fx2int(n,s) ( (n)>>(s) )
 INLINE FIXED fix_mul(FIXED a,FIXED b,u32 dec)
 { return (a>>(dec>>1)) * (b>>(dec>>1)); }
 INLINE FIXED fix_mul2(FIXED a,FIXED b,u32 dec)
