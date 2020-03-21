@@ -84,7 +84,7 @@ void player_drawchar(player *plr)
 	keine *raymo = &gram->img_bank[GAME_IMG_RAYMO];
 	u32 flip = (~plr->dir)&1;
 	// drawing
-	u32 frame = (plr->walkframe>>2)%4;
+	u32 frame = (plr->walkframe>>3)%4;
 	mokou_sprattr attr = { {dx-12,dy-12},flip<<1,0xFFFF, 0,0 };
 	SDL_Rect src = { frame*24,0,24,24 };
 	mokou_spr16(raymo,io->fb,src,attr);
