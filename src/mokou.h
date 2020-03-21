@@ -25,7 +25,7 @@ extern RGB16 mokou_pget16(keine* yago,s32 x, s32 y);
 /*	--	fill functions	--	*/
 extern void mokou_spr16(
 	keine *src,keine *dst,SDL_Rect srcrect,
-	mokou_sprattr attr;
+	mokou_sprattr attr
 );
 
 extern void mokou_trifillbot(keine *yago,VEC2 *v,s32 c);

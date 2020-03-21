@@ -1,5 +1,5 @@
 # compiler shit
-CC = gcc
+CC = clang
 LIBS = -lm -lSDL -lSDL_image -lSDL_mixer
 INCLUDE = -I. -I./src
 # obj shit
@@ -8,7 +8,7 @@ OBJS += src/game.o src/kanako.o src/player.o
 OBJS += src/sinlut.o src/fade.o
 
 NAME = build/raymo.out
-CPPFLAGS += -g
+CPPFLAGS += -g -W
 
 %.o: %.c %.cpp
 	$(CC) -c -o $@ $^ $(INCLUDE)

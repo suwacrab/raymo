@@ -1,21 +1,25 @@
 #include "kbase.h"
 #include "kappamap.h"
 #include "bios.h"
-
+#include "game.h"
 
 #ifndef PLAYER_H
 #define PLAYER_H
 
 /*	--	structs	--	*/
 typedef struct player_joyp {
-	u8 up,down,left,right;
-	u8 a,b,menu,cancel;
-	u8 l,r;
+	// first nybble
+	u8 up :1; u8 down :1;
+	u8 left :1; u8 right :1;
+	// 2nd nybble
+	u8 a :1; u8 b :1;
+	u8 menu :1; u8 cancel :1;
+	u8 l :1; u8 r :1;
 } player_joyp;
 
 typedef struct player {
 	// backend
-	bios *io;
+	game *gram;
 	player_joyp joyp;
 	// gameplay
 	VEC2 pos,vel; // 20.12 fixed point
@@ -27,7 +31,7 @@ typedef struct player {
 } player;
 
 /*	--	main functions	--	*/
-extern void player_init(player *plr,bios *io);
+extern void player_init(player *plr,game *gram);
 extern void player_updt(player *plr);
 extern void player_draw(player *plr);
 

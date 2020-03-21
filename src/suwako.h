@@ -15,10 +15,10 @@ typedef struct suwa_stat {
 
 typedef struct suwako
 {
-	VEC2 pos,vel; // $10
+	VEC2 pos; // $04 (fixed point 20.12)
 	suwa_stat stat; // $04
 	suwa_data data; // $0C
-	// size = $20
+	// size = $14
 } suwako;
 
 #endif

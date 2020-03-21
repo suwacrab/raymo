@@ -6,8 +6,9 @@ kanako *kanako_init(kanako *yasa,suwako *objs,u16 len)
 	yasa->objs = objs;
 	yasa->len = len;
 	yasa->first = 0x0000;
-	printf("suwako size: $%04lX[$%04X]\n",sizeof(suwako),len);
-	printf("kanako size: $%04lX\n",sizeof(suwako) * len);
+	yasa->alive = 0;
+	printf("<suwako size> $%04lX[$%04X]\n",sizeof(suwako),len);
+	printf("<kanako size> $%04lX\n",sizeof(suwako) * len);
 	// set next objs
 	for(u32 i=0; i<len; i++)
 	{ 
@@ -31,14 +32,17 @@ void kanako_updt(kanako *yasa)
 {
 	suwako *objs = yasa->objs;
 	u16 len = yasa->len;
+	u16 alive = len; // init alive to len.
 	for(u32 i=0; i<len; i++)
 	{
 		if(objs[i].stat.dead) // if obj is dead...
 		{ // set obj's next to first, and set first to obj.
 			objs[i].stat.next = yasa->first;
 			yasa->first = i;
+			alive--; // if dead, then decrease alive count;
 		}
 	}
+	yasa->alive = alive;
 }
 
 

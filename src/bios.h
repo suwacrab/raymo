@@ -40,7 +40,7 @@ extern void bios_loadimg(bios *kernel,u32 index,char *fname,keine_pixelfmt fmt);
 
 /*	--	update funcs	--	*/
 extern void bios_boot(bios *kernel);
-extern void bios_update(bios *kernel);
+extern void bios_updt(bios *kernel);
 extern void bios_checkquit(bios *kernel);
 
 /*	--	draw functions --	*/

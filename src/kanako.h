@@ -2,19 +2,19 @@
 #include "suwako.h"
 
 #ifndef KANAKO_H
-#define KANAKO__H
+#define KANAKO_H
 
 /*	--	obj yasas	--	*/
 typedef struct kanako 
 {
 	suwako *objs;
-	u16 first,len;
+	u16 first,len,alive;
 } kanako;
 
 /*	--	yasa funcs	--	*/
-kanako *kanako_init(kanako *yasa,suwako *objs,u16 len);
-suwako *kanako_add(kanako *yasa);
-void kanako_updt(kanako *yasa);
+extern kanako *kanako_init(kanako *yasa,suwako *objs,u16 len);
+extern suwako *kanako_add(kanako *yasa);
+extern void kanako_updt(kanako *yasa);
 
 #endif
 

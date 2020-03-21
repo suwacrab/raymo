@@ -1,10 +1,10 @@
 #include "player.h"
 
 /*	--	main functions	--	*/
-void player_init(player *plr,bios *io)
+void player_init(player *plr,game *gram)
 {
 	// clearing
-	plr->io = io;
+	plr->gram = gram;
 	plr->maxhp = 0x10;
 	plr->hp = plr->maxhp;
 
@@ -27,8 +27,10 @@ void player_draw(player *plr)
 void player_updtjoyp(player *plr)
 {
 	// vars
+	game *gram = plr->gram;
+	bios *io = gram->io;
 	player_joyp *joyp = &plr->joyp;
-	uint8_t *keystate = plr->io->keystate;
+	uint8_t *keystate = io->keystate;
 	// update d-pad
 	joyp->up = keystate[SDLK_UP];
 	joyp->down = keystate[SDLK_DOWN];
@@ -73,7 +75,8 @@ void player_updtmove(player *plr)
 void player_drawchar(player *plr)
 {
 	// vars
-	bios *io = plr->io;
+	game *gram = plr->gram;
+	bios *io = gram->io;
 	VEC2 *pos = &plr->pos;
 	VEC2 *vel = &plr->vel;
 	s32 dx = pos->x>>12;

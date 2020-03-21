@@ -39,7 +39,7 @@ void bios_init(bios *kernel,u32 w,u32 h)
 	);
 }*/
 
-void bios_update(bios *kernel)
+void bios_updt(bios *kernel)
 {
 	// update ticks
 	kernel->lasttick = SDL_GetTicks();
@@ -53,6 +53,11 @@ void bios_checkquit(bios *kernel)
 	kernel->quit = kernel->keystate[SDLK_ESCAPE];
 }
 /*	--	draw funcs	--	*/
+void bios_draw(bios *kernel)
+{
+	bios_blitkene(kernel);
+	bios_flip(kernel);
+}
 void bios_blitkene(bios *kernel)
 {
 	keine *curfb = kernel->fb;
@@ -86,7 +91,7 @@ void bios_clearscreen(bios *kernel)
 }
 void bios_flip(bios *kernel)
 {
-	uint32_t fps = 10;
+	uint32_t fps = 50;
 	uint32_t ftime = SDL_GetTicks() - kernel->lasttick;
 	uint32_t ftimer = kernel->ftimer + ftime;
 	if( ftimer < (SDL_SECOND/fps) )
@@ -94,7 +99,7 @@ void bios_flip(bios *kernel)
 		// scene: lasttick is 0 and curtick is 2
 		// frames are 10, so u ned to wait (frame-curtick), or 8
 		u32 ftime = (SDL_SECOND/fps) - ftimer;
-		printf("%02d %02d\n",ftime,SDL_SECOND/fps);
+		//printf("%02d %02d\n",ftime,SDL_SECOND/fps);
 		SDL_Delay(ftime);
 	}
 	SDL_Flip(kernel->window);
