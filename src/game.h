@@ -42,6 +42,7 @@ extern void game_updt(game *gram);
 
 /*	--	draw funcs	--	*/
 extern void game_draw(game *gram);
+extern void game_drawtestmap(game *gram);
 
 #endif
 

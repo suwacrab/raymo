@@ -148,3 +148,27 @@ void game_draw(game *gram)
 	}
 }
 
+void game_drawtestmap(game *gram)
+{
+	// vars
+	mokou_sprattr attr = { {0,0},0,0xFFFF, 0,0 };
+	u8 *testmap = gram->testmap;
+	bios *io = gram->io;
+	keine *tileimg = &gram->img_bank[GAME_IMG_TESTTILE];
+	// drawin
+	for(u32 y=0; y<0x80; y++)
+	{
+		attr.pos.y = y*16;
+		for(u32 x=0; x<0x80; x++)
+		{
+			attr.pos.x = y*16;
+			u8 tile = testmap[x + (y*0x80)];
+			if(tile>0)
+			{
+				SDL_Rect srcrect = { (tile&15)*16,(tile>>4)*16,16,16 };
+				mokou_spr16(tileimg,io->fb,srcrect,attr);
+			}
+		}
+	}
+}
+
