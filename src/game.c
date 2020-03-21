@@ -63,6 +63,7 @@ void game_updt(game *gram)
 	{ 
 		suwako *nobj = kanako_add(suwa_objs); 
 		((s8*)nobj->data)[0] = -1;
+		((s8*)nobj->data)[1] = ((io->time>>5)&3) - 2;
 		nobj->stat.type = 1;
 		nobj->pos.y = int2fx(io->h,12);
 		nobj->pos.x = int2fx(io->w/2,12);
@@ -74,6 +75,7 @@ void game_updt(game *gram)
 		{
 			s8* dat = (s8*)obj->data;
 			obj->pos.y += int2fx((FIXED)dat[0],12);
+			obj->pos.x += int2fx((FIXED)dat[1],12);
 			if( fx2int(obj->pos.y,12) < -8 ) obj->stat.dead = true;
 		}
 	}
@@ -101,7 +103,7 @@ void game_draw(game *gram)
 			s32 y = fx2int(obj->pos.y,12);
 			keine *raymo = &gram->img_bank[GAME_IMG_RAYMO];
 			mokou_sprattr attr = { mokou_sprpos(x-12,y-12),0b00,0xFFFF, 0,0 };
-			SDL_Rect src = { ((y>>4)&3)*24,0,24,24 };
+			SDL_Rect src = { ((x>>4)&3)*24,0,24,24 };
 			mokou_spr16(raymo,io->fb,src,attr);
 		}
 	}
