@@ -57,16 +57,45 @@ void player_updtmove(player *plr)
 	// get current tile
 	VEC2 tilepos = *pos;
 	vec2_shr(&tilepos,12); // get rid of fixed point (0xFFFFFFFF>0xFFFFF)
+	tilepos.y += 8; // foot hitbox is pos+4
 	vec2_shr(&tilepos,4); // divide by 16 for tile pos (0xFFFFF>0xFFFF)
 	u8 curtile = testmap[tilepos.x + (tilepos.y*0x80)];
-	
+	u16 tileang = 0;
 	// update velocity based on movement
-	s32 spd = fix_mul(1<<12,0x1000,12);
-	if(joyp->up) vel->y -= spd;
-	if(joyp->down) vel->y += spd;
-	if(joyp->left) *gsp -= spd;
-	if(joyp->right) *gsp += spd;
+	s32 spd = PLR_ACC;
+	if(joyp->left) 
+	{
+		if(*gsp > 0)
+		{ // if going in opposite dir, go back
+			*gsp -= PLR_DEC;
+			if(*gsp <= 0) *gsp = -0x800;
+		} else if(*gsp > -PLR_TOP)
+		{ // if going under top spd, speed up
+			*gsp -= PLR_ACC;
+			if(*gsp <= -PLR_TOP) *gsp = -PLR_TOP;
+		}
+	}
+	
+	if(joyp->right) 
+	{
+		*gsp += spd;
+	}
 
+	if( (!joyp->right) && (!joyp->left) )
+	{
+		*gsp -= MIN(abs(*gsp),PLR_FRC) * SIGN(*gsp);
+	}
+
+	// --> if airborne...
+	if(curtile==0)
+	{
+		vel->y += PLR_GRV;
+	} else { // --> otherwise...
+		vel->x = fix_mul(lu_cos(tileang),*gsp,12);
+		vel->y = fix_mul(lu_sin(tileang),*gsp,12);
+		
+		if(joyp->a) vel->y -= (PLR_JMP*0x8);
+	}
 	vec2_add(pos,vel);
 	
 	// update direction

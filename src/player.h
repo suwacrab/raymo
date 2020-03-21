@@ -8,10 +8,17 @@
 
 /*	--	defs	--	*/
 
-// acceleration (0.046875)
+// acceleration & friction (0.046875)
 #define PLR_ACC (0x000000C0)
+#define PLR_FRC (PLR_ACC)
 // decceleration (0.5)
 #define PLR_DEC (0x00000800)
+// gravity (0.21875)
+#define PLR_GRV (0x00000380)
+// jump speed (7.5)
+#define PLR_JMP (0x00000780)
+// top speed (6)
+#define PLR_TOP (0x00000600)
 
 /*	--	structs	--	*/
 typedef struct player_joyp {
