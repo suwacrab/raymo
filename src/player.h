@@ -17,8 +17,8 @@
 #define PLR_GRV (0x00000380)
 // jump speed (7.5)
 #define PLR_JMP (0x00000780)
-// top speed (6)
-#define PLR_TOP (0x00000600)
+// top speed (24)
+#define PLR_TOP (0x00001800)
 
 /*	--	structs	--	*/
 typedef struct player_joyp {
@@ -46,6 +46,9 @@ typedef struct player {
 	u32 walkframe;
 } player;
 
+/*	--	LUTs	--	*/
+extern const u8 height_lut[0x10][0x10];
+extern const u16 ang_lut[0x10];
 /*	--	main functions	--	*/
 extern void player_init(player *plr,game *gram);
 extern void player_updt(player *plr);

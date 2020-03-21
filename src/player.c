@@ -1,5 +1,26 @@
 #include "player.h"
 
+/*	--	LUTs	--	*/
+const u8 height_lut[0x10][0x10] =
+{
+	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 },
+	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 },
+	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 },
+	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 },
+	{ 0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15 },
+	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 }
+};
+
+const u16 ang_lut[0x10] =
+{
+	0,
+	0,
+	0,
+	0,
+	0xE000, // -45.0
+	0
+};
+
 /*	--	main functions	--	*/
 void player_init(player *plr,game *gram)
 {
@@ -44,7 +65,6 @@ void player_updtjoyp(player *plr)
 	// update side buttons
 	joyp->l = keystate[SDLK_a];
 	joyp->r = keystate[SDLK_s];
-
 }
 void player_updtmove(player *plr)
 {
@@ -58,29 +78,43 @@ void player_updtmove(player *plr)
 	VEC2 tilepos = *pos;
 	vec2_shr(&tilepos,12); // get rid of fixed point (0xFFFFFFFF>0xFFFFF)
 	tilepos.y += 8; // foot hitbox is pos+4
+	u32 heightind = tilepos.x - (tilepos.x>>4);
 	vec2_shr(&tilepos,4); // divide by 16 for tile pos (0xFFFFF>0xFFFF)
+	
 	u8 curtile = testmap[tilepos.x + (tilepos.y*0x80)];
-	u16 tileang = 0;
+	u16 tileang = ang_lut[curtile];
+	u32 height = height_lut[curtile][heightind&0xF];
+	printf("%d\n",height);
+	
 	// update velocity based on movement
 	s32 spd = PLR_ACC;
-	if(joyp->left) 
+	if( !(joyp->left && joyp->right) )
 	{
-		if(*gsp > 0)
-		{ // if going in opposite dir, go back
-			*gsp -= PLR_DEC;
-			if(*gsp <= 0) *gsp = -0x800;
-		} else if(*gsp > -PLR_TOP)
-		{ // if going under top spd, speed up
-			*gsp -= PLR_ACC;
-			if(*gsp <= -PLR_TOP) *gsp = -PLR_TOP;
+		if(joyp->left) 
+		{
+			if(*gsp > 0)
+			{ // if going in opposite dir, go back
+				*gsp -= PLR_DEC;
+				if(*gsp <= 0) *gsp = -0x800;
+			} else if(*gsp > -PLR_TOP)
+			{ // if going under top spd, speed up
+				*gsp -= PLR_ACC;
+				//if(*gsp <= -PLR_TOP) *gsp = -PLR_TOP;
+			}
+		}
+		if(joyp->right) 
+		{
+			if(*gsp < 0)
+			{
+				*gsp += PLR_DEC;
+				if(*gsp >= 0) *gsp = 0x800;
+			} else if(*gsp < PLR_TOP)
+			{
+				*gsp += PLR_ACC;
+				//if(*gsp >= PLR_TOP) *gsp = PLR_TOP;
+			}
 		}
 	}
-	
-	if(joyp->right) 
-	{
-		*gsp += spd;
-	}
-
 	if( (!joyp->right) && (!joyp->left) )
 	{
 		*gsp -= MIN(abs(*gsp),PLR_FRC) * SIGN(*gsp);
@@ -90,10 +124,13 @@ void player_updtmove(player *plr)
 	if(curtile==0)
 	{
 		vel->y += PLR_GRV;
+		if(joyp->left) vel->x -= PLR_ACC;
+		if(joyp->right) vel->x += PLR_ACC;
 	} else { // --> otherwise...
 		vel->x = fix_mul(lu_cos(tileang),*gsp,12);
 		vel->y = fix_mul(lu_sin(tileang),*gsp,12);
 		
+		pos->y = int2fx(((tilepos.y<<4)+8) - height,12);
 		if(joyp->a) vel->y -= (PLR_JMP*0x8);
 	}
 	vec2_add(pos,vel);

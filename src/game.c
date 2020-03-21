@@ -26,7 +26,7 @@ void game_init(game *gram,bios *io)
 	kanako *suwa_objs = kanako_init(&gram->suwa_objs,gram->objmem,0x400);
 	// testmap init
 	for(u32 x=0; x<0x20; x++)
-		gram->testmap[x + (6*0x80)] = 1;
+		gram->testmap[x + (6*0x80)] = (x>>1)+1;
 
 	// asset loading
 	game_loadimg(gram,0,game_img_lut[0],KEINE_PIXELFMT_RGB15);
