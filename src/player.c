@@ -8,7 +8,7 @@ const u8 height_lut[0x10][0x10] =
 	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 },
 	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 },
 	{ 0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15 },
-	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 }
+	{ 12,12,12,12, 11,11,10,9, 9,10,11,11, 12,12,12,12 }
 };
 
 const u16 ang_lut[0x10] =
@@ -80,11 +80,10 @@ void player_updtmove(player *plr)
 	tilepos.y += 8; // foot hitbox is pos+4
 	u32 heightind = tilepos.x - (tilepos.x>>4);
 	vec2_shr(&tilepos,4); // divide by 16 for tile pos (0xFFFFF>0xFFFF)
-	
 	u8 curtile = testmap[tilepos.x + (tilepos.y*0x80)];
 	u16 tileang = ang_lut[curtile];
 	u32 height = height_lut[curtile][heightind&0xF];
-	printf("%d\n",height);
+	printf("%d [%d]\n",height,curtile);
 	
 	// update velocity based on movement
 	s32 spd = PLR_ACC;
