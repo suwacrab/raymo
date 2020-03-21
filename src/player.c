@@ -50,16 +50,25 @@ void player_updtmove(player *plr)
 {
 	// vars
 	player_joyp *joyp = &plr->joyp;
+	u8 *testmap = plr->gram->testmap;
 	VEC2 *pos = &plr->pos;
 	VEC2 *vel = &plr->vel;
+	FIXED *gsp = &plr->gsp;
+	// get current tile
+	VEC2 tilepos = *pos;
+	vec2_shr(&tilepos,12); // get rid of fixed point (0xFFFFFFFF>0xFFFFF)
+	vec2_shr(&tilepos,4); // divide by 16 for tile pos (0xFFFFF>0xFFFF)
+	u8 curtile = testmap[tilepos.x + (tilepos.y*0x80)];
+	
 	// update velocity based on movement
-	vec2_set(vel,0,0);
 	s32 spd = fix_mul(1<<12,0x1000,12);
 	if(joyp->up) vel->y -= spd;
 	if(joyp->down) vel->y += spd;
-	if(joyp->left) vel->x -= spd;
-	if(joyp->right) vel->x += spd;
+	if(joyp->left) *gsp -= spd;
+	if(joyp->right) *gsp += spd;
+
 	vec2_add(pos,vel);
+	
 	// update direction
 	if(joyp->right) plr->dir = 1;
 	if(joyp->left) plr->dir = 0;

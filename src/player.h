@@ -6,6 +6,13 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+/*	--	defs	--	*/
+
+// acceleration (0.046875)
+#define PLR_ACC (0x000000C0)
+// decceleration (0.5)
+#define PLR_DEC (0x00000800)
+
 /*	--	structs	--	*/
 typedef struct player_joyp {
 	// first nybble
@@ -22,7 +29,9 @@ typedef struct player {
 	game *gram;
 	player_joyp joyp;
 	// gameplay
-	VEC2 pos,vel; // 20.12 fixed point
+	VEC2 pos,vel; // pos & x/y speed, 20.12 fixed point
+	FIXED gsp; // ground speed, 20.12
+	u16 ang; // angle in radians
 	s8 hp,maxhp; // health & max health
 	s8 dir; // direction player's facing
 	u32 walking;

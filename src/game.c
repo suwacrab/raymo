@@ -24,6 +24,9 @@ void game_init(game *gram,bios *io)
 	{ player_init(&gram->plrs[i],gram); }
 	// obj init
 	kanako *suwa_objs = kanako_init(&gram->suwa_objs,gram->objmem,0x400);
+	// testmap init
+	for(u32 x=0; x<0x20; x++)
+		gram->testmap[x + (6*0x80)] = 1;
 
 	// asset loading
 	game_loadimg(gram,0,game_img_lut[0],KEINE_PIXELFMT_RGB15);
@@ -108,28 +111,7 @@ void game_draw(game *gram)
 	kanako *suwa_objs = &gram->suwa_objs;
 	uint32_t time = io->time;
 	// drawin maps
-	RGB16 screenblock[] =
-	{
-		RGB15( 0, 0, 0), RGB15(31, 0, 0),
-		RGB15( 0,31, 0), RGB15( 0, 0,31)
-	};
-	gram->testmap[3][3] = 1;
-	mokou_sprattr tileattr = { {0,0},0b00,0xFFFF, 0,0 };
-	for(u32 y=0; y<0x80; y++)
-	{
-		tileattr.pos.y = y*16;
-		for(u32 x=0; x<0x80; x++)
-		{
-			tileattr.pos.x = x*16;
-			u8 tile = gram->testmap[y][x];
-			if( (tile>0) && (tile<4) )
-			{
-				keine *tileimg = &gram->img_bank[GAME_IMG_TESTTILE];
-				SDL_Rect srcrect = { (tile&15)*16,(tile>>4)*16,16,16 };
-				mokou_spr16(tileimg,io->fb,srcrect,tileattr);
-			}	
-		}
-	}
+	game_drawtestmap(gram);
 	// drawin players
 	player_draw(&plrs[0]);
 	// drawin objs
@@ -161,7 +143,7 @@ void game_drawtestmap(game *gram)
 		attr.pos.y = y*16;
 		for(u32 x=0; x<0x80; x++)
 		{
-			attr.pos.x = y*16;
+			attr.pos.x = x*16;
 			u8 tile = testmap[x + (y*0x80)];
 			if(tile>0)
 			{

@@ -26,7 +26,7 @@ typedef struct game
 	suwako objmem[0x400];
 	kanako suwa_objs;
 	// maps
-	u8 testmap[0x80][0x80]; // in [Y][X] order!!!
+	u8 testmap[0x80 * 0x80]; // in [Y][X] order!!!
 } game;
 
 /*	--	LUTs	--	*/
