@@ -107,6 +107,29 @@ void game_draw(game *gram)
 	player *plrs = gram->plrs;
 	kanako *suwa_objs = &gram->suwa_objs;
 	uint32_t time = io->time;
+	// drawin maps
+	RGB16 screenblock[] =
+	{
+		RGB15( 0, 0, 0), RGB15(31, 0, 0),
+		RGB15( 0,31, 0), RGB15( 0, 0,31)
+	};
+	gram->testmap[3][3] = 1;
+	mokou_sprattr tileattr = { {0,0},0b00,0xFFFF, 0,0 };
+	for(u32 y=0; y<0x80; y++)
+	{
+		tileattr.pos.y = y*16;
+		for(u32 x=0; x<0x80; x++)
+		{
+			tileattr.pos.x = x*16;
+			u8 tile = gram->testmap[y][x];
+			if( (tile>0) && (tile<4) )
+			{
+				keine *tileimg = &gram->img_bank[GAME_IMG_TESTTILE];
+				SDL_Rect srcrect = { (tile&15)*16,(tile>>4)*16,16,16 };
+				mokou_spr16(tileimg,io->fb,srcrect,tileattr);
+			}	
+		}
+	}
 	// drawin players
 	player_draw(&plrs[0]);
 	// drawin objs
