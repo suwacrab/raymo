@@ -81,13 +81,13 @@ void player_drawchar(player *plr)
 	VEC2 *vel = &plr->vel;
 	s32 dx = pos->x>>12;
 	s32 dy = pos->y>>12;
-	//keine *raymo = io->img_bank[2];
+	keine *raymo = &gram->img_bank[GAME_IMG_RAYMO];
 	u32 flip = (~plr->dir)&1;
 	// drawing
 	u32 frame = (plr->walkframe>>2)%4;
-	mokou_sprattr attr = { mokou_sprpos(dx-12,dy-12),flip<<1,0xFFFF };
+	mokou_sprattr attr = { {dx-12,dy-12},flip<<1,0xFFFF, 0,0 };
 	SDL_Rect src = { frame*24,0,24,24 };
-	//mokou_spr16(raymo,plr->io->fb,src,attr);
+	mokou_spr16(raymo,io->fb,src,attr);
 }
 
 

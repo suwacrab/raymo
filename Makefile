@@ -1,5 +1,5 @@
 # compiler shit
-CC = clang
+CC = gcc
 LIBS = -lm -lSDL -lSDL_image -lSDL_mixer
 INCLUDE = -I. -I./src
 # obj shit

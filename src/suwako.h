@@ -6,7 +6,7 @@
 #define POOL_NULL (0xFFFF)
 
 /*	--	suwa objs	--	*/
-typedef uint32_t suwa_data[2];
+typedef uint32_t suwa_data[4];
 typedef struct suwa_stat {
 	uint8_t type,dead;
 	uint16_t next,id; // next index, current index*

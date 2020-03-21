@@ -22,8 +22,10 @@ void mokou_spr16(
 	u8 yf = (attr.flip&1);
 	s32 srcW = srcrect.w; s32 srcH = srcrect.h;
 	s32 srcX = srcrect.x; s32 srcY = srcrect.y;
-	s16 dx = (s16)(attr.pos>>16);
-	s16 dy = (s16)(attr.pos&0xFFFF);
+	s32 dx = attr.pos.x;
+	s32 dy = attr.pos.y;
+	
+	u16 old_fillp = dst->fillp;
 	dst->fillp = attr.fillp;
 
 	for(s32 y=0; y<srcH; y++)
@@ -32,11 +34,16 @@ void mokou_spr16(
 		for(s32 x=0; x<srcW; x++)
 		{
 			s32 lx = dx+x;
-			s32 gx = xf ? ((srcW-1)-x) : x;
-			s32 gy = yf ? ((srcH-1)-y) : y;
-			RGB16 pix = mokou_pget16(src,gx+srcX,gy+srcY);
-			if(pix!=0) mokou_pset16(dst,lx,ly,pix);
+			if(in_range(lx,0,dst->w-1) && in_range(ly,0,dst->h-1))
+			{
+				s32 gx = xf ? ((srcW-1)-x) : x;
+				s32 gy = yf ? ((srcH-1)-y) : y;
+				RGB16 pix = mokou_pget16(src,gx+srcX,gy+srcY);
+				if(pix!=0) mokou_pset16(dst,lx,ly,pix);
+			}
 		}
 	}
+
+	dst->fillp = old_fillp;
 }
 

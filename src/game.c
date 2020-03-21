@@ -20,6 +20,8 @@ void game_init(game *gram,bios *io)
 	// player init
 	printf("<player size> $%04lX\n",sizeof(player));
 	gram->plrs = (player*)gram->plrmem;
+	for(u32 i=0; i<4; i++)
+	{ player_init(&gram->plrs[i],gram); }
 	// obj init
 	kanako *suwa_objs = kanako_init(&gram->suwa_objs,gram->objmem,0x400);
 
@@ -57,26 +59,38 @@ void game_updt(game *gram)
 {
 	// vars
 	bios *io = gram->io;
+	player *plrs = gram->plrs;
 	kanako *suwa_objs = &gram->suwa_objs;
+	// player shit
+	player_updt(&plrs[0]);
 	// obj shit
-	if(	(io->time&31) == 0 ) 
-	{ 
-		suwako *nobj = kanako_add(suwa_objs); 
-		((s8*)nobj->data)[0] = -1;
-		((s8*)nobj->data)[1] = ((io->time>>5)&3) - 2;
-		nobj->stat.type = 1;
-		nobj->pos.y = int2fx(io->h,12);
-		nobj->pos.x = int2fx(io->w/2,12);
+	if(	(io->time&15) == 0 ) 
+	{  
+		for(u32 a=0; a<(1<<16); a += 0x4000)
+		{
+			u32 ra = a + (io->time<<8);
+			suwako *nobj = kanako_add(suwa_objs);
+			((FIXED*)nobj->data)[0] = (lu_cos(ra) * 2);
+			((FIXED*)nobj->data)[1] = (lu_sin(ra) * 2);
+			nobj->data[2] = 0;
+			nobj->stat.type = 1;
+			nobj->pos.y = int2fx(io->h/2,12);
+			nobj->pos.x = int2fx(io->w/2,12);
+		}
 	}
 	for(u32 i=0; i<suwa_objs->len; i++)
 	{
 		suwako *obj = &suwa_objs->objs[i];
 		if(!obj->stat.dead)
 		{
-			s8* dat = (s8*)obj->data;
-			obj->pos.y += int2fx((FIXED)dat[0],12);
-			obj->pos.x += int2fx((FIXED)dat[1],12);
-			if( fx2int(obj->pos.y,12) < -8 ) obj->stat.dead = true;
+			FIXED *dat = (FIXED*)obj->data;
+			obj->pos.x += dat[0];
+			obj->pos.y += dat[1];
+			dat[2]++;
+			s32 x = fx2int(obj->pos.x,12);
+			s32 y = fx2int(obj->pos.y,12);
+			if( !in_range(y,-32,io->h+32) ) obj->stat.dead = true;
+			if( !in_range(x,-32,io->w+32) ) obj->stat.dead = true;
 		}
 	}
 	u32 last_alive = suwa_objs->alive;
@@ -93,7 +107,9 @@ void game_draw(game *gram)
 	player *plrs = gram->plrs;
 	kanako *suwa_objs = &gram->suwa_objs;
 	uint32_t time = io->time;
-	// drawin
+	// drawin players
+	player_draw(&plrs[0]);
+	// drawin objs
 	for(u32 i=0; i<suwa_objs->len; i++)
 	{
 		suwako *obj = &suwa_objs->objs[i];
@@ -102,7 +118,7 @@ void game_draw(game *gram)
 			s32 x = fx2int(obj->pos.x,12);
 			s32 y = fx2int(obj->pos.y,12);
 			keine *raymo = &gram->img_bank[GAME_IMG_RAYMO];
-			mokou_sprattr attr = { mokou_sprpos(x-12,y-12),0b00,0xFFFF, 0,0 };
+			mokou_sprattr attr = { {x-12,y-12},0b00,lu_fade(obj->data[2]<<9), 0,0 };
 			SDL_Rect src = { ((x>>4)&3)*24,0,24,24 };
 			mokou_spr16(raymo,io->fb,src,attr);
 		}
