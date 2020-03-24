@@ -6,7 +6,7 @@
 #include "fade.h"
 #include "kbase.h"
 #include "matrix.h"
-#include "kappamap.h"
+#include "nitori.h"
 
 #include "keine.h"
 #include "mokou.h"

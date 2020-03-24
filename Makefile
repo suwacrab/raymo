@@ -3,7 +3,7 @@ CC = gcc
 LIBS = -lm -lSDL -lSDL_image -lSDL_mixer
 INCLUDE = -I. -I./src
 # obj shit
-OBJS := src/main.o src/bios.o src/keine.o src/mokou.o src/kappamap.o
+OBJS := src/main.o src/bios.o src/keine.o src/mokou.o src/nitori.o
 OBJS += src/game.o src/kanako.o src/player.o
 OBJS += src/sinlut.o src/fade.o
 
