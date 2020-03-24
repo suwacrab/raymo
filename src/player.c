@@ -3,7 +3,7 @@
 /*	--	LUTs	--	*/
 const u8 height_lut[0x10][0x10] =
 {
-	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 },
+	{ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0 },
 	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 },
 	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 },
 	{ 16,16,16,16, 16,16,16,16, 16,16,16,16, 16,16,16,16 },
@@ -75,42 +75,44 @@ void player_updtmove(player *plr)
 	VEC2 *vel = &plr->vel;
 	FIXED *gsp = &plr->gsp;
 	// get current tile
-	VEC2 tilepos = *pos;
-	vec2_shr(&tilepos,12); // get rid of fixed point (0xFFFFFFFF>0xFFFFF)
-	tilepos.y += 8; // foot hitbox is pos+4
-	u32 heightind = tilepos.x - (tilepos.x>>4);
-	vec2_shr(&tilepos,4); // divide by 16 for tile pos (0xFFFFF>0xFFFF)
-	u8 curtile = testmap[tilepos.x + (tilepos.y*0x80)];
-	u16 tileang = ang_lut[curtile];
-	u32 height = height_lut[curtile][heightind&0xF];
-	printf("%d [%d]\n",height,curtile);
+	VEC2 tpos = *pos;
+	vec2_shr(&tpos,12); // get rid of fixed point (0xFFFFFFFF>0xFFFFF)
+	u8 hit_L,hit_R,hit_U,hit_D;
+	{ hit_L = testmap[ PLRMAP(tpos.x-6,tpos.y) ]; }
+	{ hit_R = testmap[ PLRMAP(tpos.x+6,tpos.y) ]; }
+	{ hit_U = testmap[ PLRMAP(tpos.x,tpos.y-4) ]; }
+	{ hit_D = testmap[ PLRMAP(tpos.x,tpos.y+8) ]; }
+	u16 tileang = 0;
 	
 	// update velocity based on movement
 	s32 spd = PLR_ACC;
-	if( !(joyp->left && joyp->right) )
+	if( 1 )
 	{
-		if(joyp->left) 
+		if( !(joyp->left && joyp->right) )
 		{
-			if(*gsp > 0)
-			{ // if going in opposite dir, go back
-				*gsp -= PLR_DEC;
-				if(*gsp <= 0) *gsp = -0x800;
-			} else if(*gsp > -PLR_TOP)
-			{ // if going under top spd, speed up
-				*gsp -= PLR_ACC;
-				//if(*gsp <= -PLR_TOP) *gsp = -PLR_TOP;
+			if(joyp->left) 
+			{
+				if(*gsp > 0)
+				{ // if going in opposite dir, go back
+					*gsp -= PLR_DEC;
+					if(*gsp <= 0) *gsp = -0x800;
+				} else if(*gsp > -PLR_TOP)
+				{ // if going under top spd, speed up
+					*gsp -= PLR_ACC;
+					//if(*gsp <= -PLR_TOP) *gsp = -PLR_TOP;
+				}
 			}
-		}
-		if(joyp->right) 
-		{
-			if(*gsp < 0)
+			if(joyp->right) 
 			{
-				*gsp += PLR_DEC;
-				if(*gsp >= 0) *gsp = 0x800;
-			} else if(*gsp < PLR_TOP)
-			{
-				*gsp += PLR_ACC;
-				//if(*gsp >= PLR_TOP) *gsp = PLR_TOP;
+				if(*gsp < 0)
+				{
+					*gsp += PLR_DEC;
+					if(*gsp > 0) *gsp = 0x800;
+				} else if(*gsp < PLR_TOP)
+				{
+					*gsp += PLR_ACC;
+					//if(*gsp >= PLR_TOP) *gsp = PLR_TOP;
+				}
 			}
 		}
 	}
@@ -119,19 +121,21 @@ void player_updtmove(player *plr)
 		*gsp -= MIN(abs(*gsp),PLR_FRC) * SIGN(*gsp);
 	}
 
-	// --> if airborne...
-	if(curtile==0)
-	{
+	if( (hit_D==0) )
+	{ // midair
 		vel->y += PLR_GRV;
 		if(joyp->left) vel->x -= PLR_ACC;
 		if(joyp->right) vel->x += PLR_ACC;
-	} else { // --> otherwise...
+	} else if( (hit_D>0) )
+	{ // grounded
 		vel->x = fix_mul(lu_cos(tileang),*gsp,12);
 		vel->y = fix_mul(lu_sin(tileang),*gsp,12);
-		
-		pos->y = int2fx(((tilepos.y<<4)+8) - height,12);
+		s32 grndpos = ((tpos.y>>4)<<4);
+		pos->y = int2fx(grndpos+8,12);
+
 		if(joyp->a) vel->y -= (PLR_JMP*0x8);
 	}
+
 	vec2_add(pos,vel);
 	
 	// update direction
@@ -141,8 +145,6 @@ void player_updtmove(player *plr)
 	bool did_move = (vel->x != 0);
 	if(did_move) plr->walkframe++;
 	if(!did_move) plr->walkframe = 0;
-	
-	char *n = malloc(sizeof(char)*16);
 }
 
 /*	--	draw functions	--	*/

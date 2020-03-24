@@ -33,7 +33,6 @@ void game_init(game *gram,bios *io)
 	game_loadimg(gram,1,game_img_lut[1],KEINE_PIXELFMT_RGB15);
 	game_loadimg(gram,2,game_img_lut[2],KEINE_PIXELFMT_RGB15);
 }
-
 keine *game_loadimg(game *gram,u32 id,const char *fname,keine_pixelfmt fmt)
 {
 	keine *curimg = &gram->img_bank[id];
@@ -41,7 +40,6 @@ keine *game_loadimg(game *gram,u32 id,const char *fname,keine_pixelfmt fmt)
 	printf("<image loaded> [$%04X] '%s'\n",id,fname);
 	return curimg;
 }
-
 void game_run(game *gram)
 {
 	bios *io = gram->io;
@@ -81,6 +79,7 @@ void game_updt(game *gram)
 			nobj->pos.x = int2fx(io->w/2,12);
 		}
 	}
+	u32 last_alive = suwa_objs->alive;
 	for(u32 i=0; i<suwa_objs->len; i++)
 	{
 		suwako *obj = &suwa_objs->objs[i];
@@ -92,14 +91,12 @@ void game_updt(game *gram)
 			dat[2]++;
 			s32 x = fx2int(obj->pos.x,12);
 			s32 y = fx2int(obj->pos.y,12);
-			if( !in_range(y,-32,io->h+32) ) obj->stat.dead = true;
-			if( !in_range(x,-32,io->w+32) ) obj->stat.dead = true;
+			if( !in_range(y,-32,io->h+32) ) kanako_del(suwa_objs,i);
+			if( !in_range(x,-32,io->w+32) ) kanako_del(suwa_objs,i);
 		}
 	}
-	u32 last_alive = suwa_objs->alive;
-	kanako_updt(suwa_objs);
 	if(last_alive != suwa_objs->alive)
-	printf("<suwa_obj alive> $%04X\n",suwa_objs->alive);
+	{ /* printf("<suwa_obj alive> $%04X\n",suwa_objs->alive); */ }
 }
 
 /*	--	draw funcs	--	*/

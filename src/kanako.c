@@ -26,23 +26,15 @@ suwako *kanako_add(kanako *yasa)
 	suwako *nobj = &yasa->objs[yasa->first];
 	nobj->stat.dead = false;
 	yasa->first = nobj->stat.next;
+	yasa->alive++;
+
 	return nobj;
 }
-void kanako_updt(kanako *yasa)
+void kanako_del(kanako *yasa,u16 id)
 {
-	suwako *objs = yasa->objs;
-	u16 len = yasa->len;
-	u16 alive = len; // init alive to len.
-	for(u32 i=0; i<len; i++)
-	{
-		if(objs[i].stat.dead) // if obj is dead...
-		{ // set obj's next to first, and set first to obj.
-			objs[i].stat.next = yasa->first;
-			yasa->first = i;
-			alive--; // if dead, then decrease alive count;
-		}
-	}
-	yasa->alive = alive;
+	yasa->objs[id].stat.dead = true;
+	yasa->objs[id].stat.next = yasa->first;
+	yasa->first = id;
+	yasa->alive--;
 }
-
 

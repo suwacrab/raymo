@@ -8,5 +8,5 @@ nitori nitori_new(u16 w,u16 h)
 }
 
 void nitori_free(nitori *kawa)
-{ free(kmap->m); }
+{ free(kawa->m); }
 

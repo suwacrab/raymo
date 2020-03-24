@@ -1,5 +1,5 @@
 #include "kbase.h"
-#include "kappamap.h"
+#include "nitori.h"
 #include "bios.h"
 #include "game.h"
 
@@ -17,8 +17,11 @@
 #define PLR_GRV (0x00000380)
 // jump speed (7.5)
 #define PLR_JMP (0x00000780)
-// top speed (24)
-#define PLR_TOP (0x00001800)
+// top speed (40)
+#define PLR_TOP (0x00002800)
+
+// convert pixel to map pos
+#define PLRMAP(x,y) ( ((x)>>4) + ( ((y)>>4) * 0x80 ) )
 
 /*	--	structs	--	*/
 typedef struct player_joyp {
