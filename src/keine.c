@@ -1,9 +1,9 @@
 #include "keine.h"
 
 /*	--	init funcs -- */
-size_t keine_initPAL4(keine *yago) { return sizeof(u8) * (yago->w>>1) * yago->h; }
-size_t keine_initPAL8(keine *yago) { return sizeof(u8) * yago->w * yago->h; }
-size_t keine_initRGB16(keine *yago) { return sizeof(u8) * (yago->w<<1) * yago->h; }
+size_t keine_initPAL4(keine *yago) { return (yago->w>>1) * yago->h; }
+size_t keine_initPAL8(keine *yago) { return yago->w * yago->h; }
+size_t keine_initRGB16(keine *yago) { return (yago->w<<1) * yago->h; }
 
 keine_initfunc keine_initfmts[] = {
 	&keine_initPAL4,&keine_initPAL8,
@@ -18,7 +18,8 @@ keine *keine_init(keine *yago,u32 w,u32 h,keine_pixelfmt fmt)
 	yago->w = w;
 	yago->h = h;
 	yago->fmt = fmt;
-	yago->palette = NULL;
+	yago->pal0 = NULL;
+	yago->pal1 = NULL;
 	yago->m = NULL;
 	
 	// allocatin memory for pixels
@@ -64,7 +65,42 @@ keine *keine_loadimg(keine *yago,const char *fname,keine_pixelfmt fmt)
 				SDL_FreeSurface(convimg);
 				break;
 			}
-			
+			case KEINE_PIXELFMT_PAL4:
+			{
+				convimg = loadimg;
+				u32 w = convimg->w;
+				u32 h = convimg->h;
+				u32 hw = convimg->w>>1;
+				keine_init(yago,w,h,fmt);
+				keine_clear(yago);
+				yago->pal0 = malloc(sizeof(RGB16) * 16);
+				yago->pal1 = malloc(sizeof(RGB16) * 16);
+				// palette loadin
+				for(u32 c=0; c<16; c++) // ha
+				{
+					SDL_Color clr = convimg->format->palette->colors[c];
+					yago->pal0[c] = RGB15( clr.r>>3,clr.g>>3,clr.b>>3 );
+					yago->pal1[c] = yago->pal0[c];
+				}
+				
+				// fb loadin
+				for(u32 y=0; y<h; y++)
+				{
+					for(u32 x=0; x<w; x++)
+					{
+						u32 ind = (x>>1) + (y*hw);
+						u32 opix = ((RGB8*)yago->m)[ind];
+						u32 npix = ((RGB8*)convimg->pixels)[x + (y*w)];
+						npix &= 0xF;
+						u32 b0 = npix << (4*(x&1)); // if odd, shift left
+						u32 b1 = opix & (0xF0>>(4*(x&1))); // if odd, shift right
+						((RGB8*)yago->m)[ind] = b0 | b1;
+					}
+				}
+
+				//SDL_FreeSurface(convimg);
+				break;
+			}
 			case KEINE_PIXELFMT_RGB15:
 			{
 				SDL_PixelFormat sdlfmt = {
@@ -80,7 +116,7 @@ keine *keine_loadimg(keine *yago,const char *fname,keine_pixelfmt fmt)
 				u32 w = convimg->w;
 				u32 h = convimg->h;
 				keine_init(yago,w,h,fmt);
-
+				memset(yago->m,0,keine_imgsize(yago));
 				u32 *convpix = (u32*)convimg->pixels;
 				u16 *yagopix = (u16*)yago->m;
 				for(u32 i=0; i<(w*h); i++)
@@ -102,7 +138,8 @@ keine *keine_loadimg(keine *yago,const char *fname,keine_pixelfmt fmt)
 void keine_free(keine *yago)
 {
 	if(yago->m != NULL) { free(yago->m); yago->m = NULL; }
-	if(yago->palette != NULL) { free(yago->palette); yago->palette = NULL; }
+	if(yago->pal0 != NULL) { free(yago->pal0); yago->pal0 = NULL; }
+	if(yago->pal1 != NULL) { free(yago->pal1); yago->pal1 = NULL; }
 }
 
 void keine_clear(keine *yago)

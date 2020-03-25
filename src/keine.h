@@ -30,7 +30,8 @@ typedef struct keine
 	u32 w,h; // width,height
 	u16 fillp; // fill pattern
 	keine_pixelfmt fmt; // pixel format
-	void *palette; // color palette
+	RGB16 *pal0; // color palette ( should b readonly )
+	RGB16 *pal1; // alternate palette ( for drawing )
 	void *m; // pixel matrix
 } keine;
 

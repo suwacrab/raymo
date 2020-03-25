@@ -9,6 +9,7 @@ const char *game_img_lut[] =
 	/* 01 */ "gfx/testtile.png",
 	/* 02 */ "gfx/raymo.png",
 	/* 03 */ "gfx/borefont.png",
+	/* 04 */ "gfx/raymo.png",
 	NULL
 };
 
@@ -44,6 +45,7 @@ void game_init(game *gram,bios *io)
 	game_loadimg(gram,1,game_img_lut[1],KEINE_PIXELFMT_RGB15);
 	game_loadimg(gram,2,game_img_lut[2],KEINE_PIXELFMT_RGB15);
 	game_loadimg(gram,3,game_img_lut[3],KEINE_PIXELFMT_RGB15);
+	game_loadimg(gram,4,game_img_lut[4],KEINE_PIXELFMT_PAL4);
 	// come on, you got this!
 	printf("GRAM usage: $%08lX\n",sizeof(game));
 	printf("GRAM limit: $%08lX\n",sizeof(io->ram));
@@ -52,7 +54,7 @@ keine *game_loadimg(game *gram,u32 id,const char *fname,keine_pixelfmt fmt)
 {
 	keine *curimg = &gram->img_bank[id];
 	keine_loadimg(curimg,fname,fmt);
-	printf("<image loaded> [$%04X] '%s'\n",id,fname);
+	printf("<image loaded> [$%04X] [%08lX] '%s'\n",id,(u64)curimg->pal0,fname);
 	return curimg;
 }
 void game_run(game *gram)
@@ -147,6 +149,19 @@ void game_draw(game *gram)
 		sprintf(spdstr,"gsp: $%08X\n",plrs[0].gsp);
 		//game_drawdebugtxt(gram,alivestr,0,0);
 		game_drawdebugtxt(gram,spdstr,0,0);
+	}
+	// 4-bit img test
+	keine *raymo = &gram->img_bank[GAME_IMG_RAYMO4];
+	for( u32 y=0; y<raymo->h; y++ )
+	{
+		for( u32 x=0; x<raymo->w; x++ )
+		{
+			RGB8 pix = mokou_pget4(raymo,x,y);
+			if(pix>0)
+			{
+				mokou_pset16(io->fb,x,y,raymo->pal1[pix]);
+			}
+		}
 	}
 }
 void game_drawdebugtxt(game *gram,const char *txt,s32 x,s32 y)

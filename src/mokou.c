@@ -1,6 +1,22 @@
 #include "mokou.h"
 
 /*	--	pset functions	--	*/
+RGB8 *mokou_pread4(keine *yago,u32 x,u32 y)
+{ return &((RGB8*)yago->m)[ (x>>1) + (y*(yago->w>>1)) ]; }
+RGB8 mokou_pget4(keine *yago,s32 x,s32 y)
+{ 
+	if( !keine_clip(yago,x,y) ) return 0;
+	RGB8 pix = *mokou_pread4(yago,x,y) >> (4*(x&1));
+	return pix & 0xF; 
+}
+void mokou_pset4(keine *yago,s32 x,s32 y,RGB8 c)
+{ 
+	if( keine_clip(yago,x,y) && keine_fillp(yago,x,y))
+	{
+		*mokou_pread4(yago,x,y) = c;
+	}
+}
+
 RGB16 *mokou_pread16(keine *yago,u32 x,u32 y)
 { return ((RGB16*)yago->m) + (x + (y*yago->w)); }
 RGB16 mokou_pget16(keine *yago,s32 x,s32 y)
