@@ -78,15 +78,20 @@ void player_updtmove(player *plr)
 	hina *hmap = gram->hmap;
 	nitori *kmap = &hmap->kmap;
 	// get current tile
-	VEC2 tpos = *pos;
-	vec2_shr(&tpos,12); // get rid of fixed point (0xFFFFFFFF>0xFFFFF)
+	VEC2 rpos = *pos; // rounded plr pos
+	vec2_shr(&rpos,12); // $FFFFF.FFF > $FFFFF
+	bool midair = false;
 	u8 hitA,hitB; // bottom left,bottom right
 	u8 hitC,hitD; // mid left, mid right
 	u8 hitE,hitF; // top left, top right
+	s32 Bwid = 4; // __B__ottom width.
+	s32 Bhei = 8; // __B__ottom height.
+	hitA = nitori_get(kmap,(rpos.x-Bwid)>>4,(rpos.y+Bhei)>>4);
+	hitB = nitori_get(kmap,(rpos.x+Bwid)>>4,(rpos.y+Bhei)>>4);
+	
 	u16 tileang = 0;
 	// update velocity based on movement
 	s32 spd = PLR_ACC;
-	if( 1 )
 	{
 		if( !(joyp->left && joyp->right) )
 		{
@@ -120,9 +125,46 @@ void player_updtmove(player *plr)
 	{
 		*gsp -= MIN(abs(*gsp),PLR_FRC) * SIGN(*gsp);
 	}
-
 	
-
+	// A&B handling
+	midair = !((hitA>0) || (hitB>0));
+	if( !midair )
+	{ // if A or B was hit...
+		VEC2 posA = { rpos.x-Bwid,rpos.y+Bhei };
+		VEC2 posB = { rpos.x+Bwid,rpos.y+Bhei };
+		s32 hitindA = 0; s32 hitindB = 0;
+		s32 heightA = 0; s32 heightB = 0;
+		// moving
+		if( hitA>0 )
+		{
+			hitindA = (posA.x) - ((posA.x>>4)<<4);
+			heightA = height_lut[hitA][hitindA];
+			tileang = ang_lut[hitA];
+			// if posA is in tile range...
+			s32 tpos = (posA.y>>4)<<4;
+			pos->y = int2fx(tpos-8,12);
+			pos->y -= Bhei;	
+			
+			vel->x = fix_mul(lu_cos(tileang),*gsp,12);
+			vel->y = fix_mul(lu_sin(tileang),*gsp,12);
+		}
+		if( hitB>0 )
+		{
+			hitindB = (posB.x) - ((posB.x>>4)<<4);
+			heightB = height_lut[hitB][hitindB];
+		}
+		// drawing
+		char hittxt[0x100];
+		sprintf(hittxt,"indA: %d\nindB: %d\nhiA: %d\nhiB: %d\n",
+			hitindA,hitindB,heightA,heightB
+		);
+		game_drawdebugtxt(gram,"ground",0,8);
+		game_drawdebugtxt(gram,hittxt,0,16);
+	} else {
+		game_drawdebugtxt(gram,"midair",0,8);
+		vel->y += PLR_GRV;
+	}
+	
 	vec2_add(pos,vel);
 	
 	// update direction
@@ -151,6 +193,7 @@ void player_drawchar(player *plr)
 	mokou_sprattr attr = { {dx-12,dy-12},flip<<1,0xFFFF, 0,0 };
 	SDL_Rect src = { frame*24,0,24,24 };
 	mokou_spr16(raymo,io->fb,src,attr);
+	mokou_pset16(io->fb,dx,dy,RGB15(0,31,0));
 }
 
 

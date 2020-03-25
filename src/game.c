@@ -25,6 +25,8 @@ void game_init(game *gram,bios *io)
 	gram->plrs = (player*)gram->plrmem;
 	for(u32 i=0; i<4; i++)
 	{ player_init(&gram->plrs[i],gram); }
+	VEC2 offpos = { int2fx(32,12),int2fx(32,12) };
+	vec2_add(&gram->plrs[0].pos,&offpos);
 	// obj init
 	kanako *suwa_objs = kanako_init(&gram->suwa_objs,gram->obj_mem,0x200);
 	// hina init
@@ -59,10 +61,10 @@ void game_run(game *gram)
 	while( !io->quit )
 	{
 		// update
+		bios_clearscreen(io);
 		bios_updt(io);
 		game_updt(gram);
 		// draw
-		bios_clearscreen(io);
 		game_draw(gram);
 		bios_draw(io);
 	}
@@ -139,11 +141,13 @@ void game_draw(game *gram)
 		}
 	}
 	// text drawin
-	char alivestr[0x20],spdstr[0x20];
-	sprintf(alivestr,"alive: $%04X/$%04X",suwa->alive,suwa->len);
-	sprintf(spdstr,"gsp: $%08X\n",plrs[0].gsp);
-	game_drawdebugtxt(gram,alivestr,0,0);
-	game_drawdebugtxt(gram,spdstr,0,8);
+	{
+		char alivestr[0x20],spdstr[0x20];
+		sprintf(alivestr,"alive: $%04X/$%04X",suwa->alive,suwa->len);
+		sprintf(spdstr,"gsp: $%08X\n",plrs[0].gsp);
+		//game_drawdebugtxt(gram,alivestr,0,0);
+		game_drawdebugtxt(gram,spdstr,0,0);
+	}
 }
 void game_drawdebugtxt(game *gram,const char *txt,s32 x,s32 y)
 {
