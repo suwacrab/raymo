@@ -77,13 +77,10 @@ void player_updtmove(player *plr)
 	// get current tile
 	VEC2 tpos = *pos;
 	vec2_shr(&tpos,12); // get rid of fixed point (0xFFFFFFFF>0xFFFFF)
-	u8 hit_L,hit_R,hit_U,hit_D;
-	{ hit_L = testmap[ PLRMAP(tpos.x-6,tpos.y) ]; }
-	{ hit_R = testmap[ PLRMAP(tpos.x+6,tpos.y) ]; }
-	{ hit_U = testmap[ PLRMAP(tpos.x,tpos.y-4) ]; }
-	{ hit_D = testmap[ PLRMAP(tpos.x,tpos.y+8) ]; }
+	u8 hitA,hitB; // bottom left,bottom right
+	u8 hitC,hitD; // mid left, mid right
+	u8 hitE,hitF; // top left, top right
 	u16 tileang = 0;
-	
 	// update velocity based on movement
 	s32 spd = PLR_ACC;
 	if( 1 )
@@ -121,21 +118,7 @@ void player_updtmove(player *plr)
 		*gsp -= MIN(abs(*gsp),PLR_FRC) * SIGN(*gsp);
 	}
 
-	if( (hit_D==0) )
-	{ // midair
-		vel->y += PLR_GRV;
-		if(joyp->left) vel->x -= PLR_ACC;
-		if(joyp->right) vel->x += PLR_ACC;
-		*gsp = vel->x;
-	} else if( (hit_D>0) )
-	{ // grounded
-		vel->x = fix_mul(lu_cos(tileang),*gsp,12);
-		vel->y = fix_mul(lu_sin(tileang),*gsp,12);
-		s32 grndpos = ((tpos.y>>4)<<4);
-		pos->y = int2fx(grndpos+8,12);
-
-		if(joyp->a) vel->y -= (PLR_JMP*0x8);
-	}
+	
 
 	vec2_add(pos,vel);
 	

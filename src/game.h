@@ -1,7 +1,9 @@
 #include "bios.h"
 #include "suwako.h"
 #include "kanako.h"
+#include "nitori.h"
 
+struct hina;
 struct player;
 
 #ifndef GAME_H
@@ -24,9 +26,11 @@ typedef struct game
 	// objects
 	u32 plrmem[4 * 0x30];
 	struct player *plrs;
-	suwako objmem[0x400];
+	suwako obj_mem[0x200];
 	kanako suwa_objs;
 	// maps
+	u32 hmap_mem[0x20];
+	struct hina *hmap;
 	u8 testmap[0x80 * 0x80]; // in [Y][X] order!!!
 } game;
 

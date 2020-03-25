@@ -1,5 +1,6 @@
 #include "game.h"
 #include "player.h"
+#include "hina.h"
 
 /*	--	LUTs	--	*/
 const char *game_img_lut[] = 
@@ -25,16 +26,20 @@ void game_init(game *gram,bios *io)
 	for(u32 i=0; i<4; i++)
 	{ player_init(&gram->plrs[i],gram); }
 	// obj init
-	kanako *suwa_objs = kanako_init(&gram->suwa_objs,gram->objmem,0x400);
+	kanako *suwa_objs = kanako_init(&gram->suwa_objs,gram->obj_mem,0x200);
 	// testmap init
 	for(u32 x=0; x<0x20; x++)
 		gram->testmap[x + (6*0x80)] = (x>>1)+1;
-
+	// hina init
+	gram->hmap = (hina*)gram->hmap_mem;
 	// asset loading
 	game_loadimg(gram,0,game_img_lut[0],KEINE_PIXELFMT_RGB15);
 	game_loadimg(gram,1,game_img_lut[1],KEINE_PIXELFMT_RGB15);
 	game_loadimg(gram,2,game_img_lut[2],KEINE_PIXELFMT_RGB15);
 	game_loadimg(gram,3,game_img_lut[3],KEINE_PIXELFMT_RGB15);
+	// come on, you got this!
+	printf("GRAM usage: $%08lX\n",sizeof(game));
+	printf("GRAM limit: $%08lX\n",sizeof(io->ram));
 }
 keine *game_loadimg(game *gram,u32 id,const char *fname,keine_pixelfmt fmt)
 {

@@ -6,7 +6,6 @@
 #include "fade.h"
 #include "kbase.h"
 #include "matrix.h"
-#include "nitori.h"
 
 #include "keine.h"
 #include "mokou.h"
@@ -16,7 +15,11 @@ struct player;
 #ifndef BIOS_H
 #define BIOS_H
 
+/* -- defs -- */
+#define BIOS_RAM_SIZE ( MBSIZE(4) )
+
 /*	--	structs	--	*/
+typedef u8 bios_ram[ BIOS_RAM_SIZE ];
 typedef struct bios {
 	// screen vars
 	SDL_Surface *window;
@@ -31,7 +34,7 @@ typedef struct bios {
 	uint32_t ftimer;
 	bool quit; // quit flag;
 	// game vars
-	u8 ram[ MBSIZE(4) ];
+	bios_ram ram;
 } bios;
 
 /*	--	main funcs	--	*/
