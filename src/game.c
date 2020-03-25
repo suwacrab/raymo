@@ -32,6 +32,8 @@ void game_init(game *gram,bios *io)
 		gram->testmap[x + (6*0x80)] = (x>>1)+1;
 	// hina init
 	gram->hmap = (hina*)gram->hmap_mem;
+	hina *hmap = hina_init(gram->hmap,gram,HINA_SIZE_16x16);
+	hmap->img = &gram->img_bank[GAME_IMG_TESTTILE];
 	// asset loading
 	game_loadimg(gram,0,game_img_lut[0],KEINE_PIXELFMT_RGB15);
 	game_loadimg(gram,1,game_img_lut[1],KEINE_PIXELFMT_RGB15);
