@@ -144,8 +144,8 @@ void player_updtmove(player *plr)
 			// tile settin
 			s32 tpos = (posA.y>>4)<<4; // round to tile pos
 			s32 fpos = ((tpos+16)-heightA); // convert to foot pos
-			if( posA.y > fpos ) // if in height...
-			{ hitgrnd = true; pos->y = int2fx(fpos-Bhei-1,12); }
+			if( posA.y >= fpos ) // if in height...
+			{ hitgrnd = true; pos->y = int2fx(fpos-Bhei,12); }
 			else // if not in height...
 			{ }//vel->y += PLR_GRV; }
 		}
