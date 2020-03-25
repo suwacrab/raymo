@@ -27,13 +27,16 @@ void game_init(game *gram,bios *io)
 	{ player_init(&gram->plrs[i],gram); }
 	// obj init
 	kanako *suwa_objs = kanako_init(&gram->suwa_objs,gram->obj_mem,0x200);
-	// testmap init
-	for(u32 x=0; x<0x20; x++)
-		gram->testmap[x + (6*0x80)] = (x>>1)+1;
 	// hina init
 	gram->hmap = (hina*)gram->hmap_mem;
 	hina *hmap = hina_init(gram->hmap,gram,HINA_SIZE_16x16);
+	hmap->kmap.m = gram->map_mem[0];
+	hmap->kmap.w = HMAP_W;
+	hmap->kmap.h = HMAP_H;
 	hmap->img = &gram->img_bank[GAME_IMG_TESTTILE];
+	for(u32 x=0; x<0x20; x++)
+		nitori_set(&hmap->kmap,x,6,(x>>1)+1);
+	nitori_set(&hmap->kmap,4,5,4);
 	// asset loading
 	game_loadimg(gram,0,game_img_lut[0],KEINE_PIXELFMT_RGB15);
 	game_loadimg(gram,1,game_img_lut[1],KEINE_PIXELFMT_RGB15);
@@ -118,7 +121,7 @@ void game_draw(game *gram)
 	kanako *suwa = &gram->suwa_objs;
 	uint32_t time = io->time;
 	// drawin maps
-	game_drawtestmap(gram);
+	game_drawmap(gram);
 	// drawin players
 	player_draw(&plrs[0]);
 	// drawin objs
@@ -166,27 +169,9 @@ void game_drawdebugtxt(game *gram,const char *txt,s32 x,s32 y)
 		}
 	}
 }
-void game_drawtestmap(game *gram)
+void game_drawmap(game *gram)
 {
-	// vars
-	mokou_sprattr attr = { {0,0},0,0xFFFF, 0,0 };
-	u8 *testmap = gram->testmap;
-	bios *io = gram->io;
-	keine *tileimg = &gram->img_bank[GAME_IMG_TESTTILE];
-	// drawin
-	for(u32 y=0; y<0x80; y++)
-	{
-		attr.pos.y = y*16;
-		for(u32 x=0; x<0x80; x++)
-		{
-			attr.pos.x = x*16;
-			u8 tile = testmap[x + (y*0x80)];
-			if(tile>0)
-			{
-				SDL_Rect srcrect = { (tile&15)*16,(tile>>4)*16,16,16 };
-				mokou_spr16(tileimg,io->fb,srcrect,attr);
-			}
-		}
-	}
+	hina *hmap = gram->hmap;
+	hina_drawmap(&hmap[0]);
 }
 

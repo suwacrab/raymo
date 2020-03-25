@@ -8,6 +8,9 @@ struct player;
 
 #ifndef GAME_H
 #define GAME_H
+/* -- defs -- */
+#define HMAP_W (0x80)
+#define HMAP_H (0x80)
 
 /*	--	structs	--	*/
 typedef enum game_img {
@@ -31,7 +34,7 @@ typedef struct game
 	// maps
 	u32 hmap_mem[0x20];
 	struct hina *hmap;
-	u8 testmap[0x80 * 0x80]; // in [Y][X] order!!!
+	u8 map_mem[4][ HMAP_W * HMAP_H ];
 } game;
 
 /*	--	LUTs	--	*/
@@ -48,7 +51,7 @@ extern void game_updt(game *gram);
 /*	--	draw funcs	--	*/
 extern void game_draw(game *gram);
 extern void game_drawdebugtxt(game *gram,const char *txt,s32 x,s32 y);
-extern void game_drawtestmap(game *gram);
+extern void game_drawmap(game *gram);
 
 #endif
 

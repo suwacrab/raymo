@@ -70,10 +70,13 @@ void player_updtmove(player *plr)
 {
 	// vars
 	player_joyp *joyp = &plr->joyp;
-	u8 *testmap = plr->gram->testmap;
 	VEC2 *pos = &plr->pos;
 	VEC2 *vel = &plr->vel;
 	FIXED *gsp = &plr->gsp;
+	
+	game *gram = plr->gram;
+	hina *hmap = gram->hmap;
+	nitori *kmap = &hmap->kmap;
 	// get current tile
 	VEC2 tpos = *pos;
 	vec2_shr(&tpos,12); // get rid of fixed point (0xFFFFFFFF>0xFFFFF)

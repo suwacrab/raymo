@@ -29,4 +29,10 @@ typedef struct hina
 extern hina *hina_init(hina *kagi,game *gram,HINA_SIZE size);
 extern void hina_drawmap(hina *kagi);
 
+/* -- inline funcs -- */
+INLINE s32 hina_wide(HINA_SIZE size)
+{ return 4<<size; }
+INLINE s32 hina_pos(HINA_SIZE size,s32 n)
+{ return n * hina_wide(size); }
+
 #endif
