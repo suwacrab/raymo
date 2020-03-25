@@ -2,8 +2,8 @@
 #include "bios.h"
 #include "game.h"
 
-#define WIDTH (320)
-#define HEIGHT (240)
+const u32 WIDTH = 256;
+const u32 HEIGHT = 160;
 
 // sdl vars
 bios eys_bios;

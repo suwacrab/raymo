@@ -99,7 +99,7 @@ void player_updtmove(player *plr)
 				} else if(*gsp > -PLR_TOP)
 				{ // if going under top spd, speed up
 					*gsp -= PLR_ACC;
-					//if(*gsp <= -PLR_TOP) *gsp = -PLR_TOP;
+					if(*gsp <= -PLR_TOP) *gsp = -PLR_TOP;
 				}
 			}
 			if(joyp->right) 
@@ -111,7 +111,7 @@ void player_updtmove(player *plr)
 				} else if(*gsp < PLR_TOP)
 				{
 					*gsp += PLR_ACC;
-					//if(*gsp >= PLR_TOP) *gsp = PLR_TOP;
+					if(*gsp >= PLR_TOP) *gsp = PLR_TOP;
 				}
 			}
 		}
@@ -126,6 +126,7 @@ void player_updtmove(player *plr)
 		vel->y += PLR_GRV;
 		if(joyp->left) vel->x -= PLR_ACC;
 		if(joyp->right) vel->x += PLR_ACC;
+		*gsp = vel->x;
 	} else if( (hit_D>0) )
 	{ // grounded
 		vel->x = fix_mul(lu_cos(tileang),*gsp,12);
