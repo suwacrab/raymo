@@ -2,11 +2,13 @@
 #include "player.h"
 
 /*	--	LUTs	--	*/
-const char *game_img_lut[0x100] = 
+const char *game_img_lut[] = 
 {
-	/*	00	*/ "gfx/testtex.png",
-	/*	01	*/ "gfx/testtile.png",
-	/*	02	*/ "gfx/raymo.png"
+	/* 00 */ "gfx/testtex.png",
+	/* 01 */ "gfx/testtile.png",
+	/* 02 */ "gfx/raymo.png",
+	/* 03 */ "gfx/borefont.png",
+	NULL
 };
 
 /*	--	main funcs	--	*/
@@ -32,6 +34,7 @@ void game_init(game *gram,bios *io)
 	game_loadimg(gram,0,game_img_lut[0],KEINE_PIXELFMT_RGB15);
 	game_loadimg(gram,1,game_img_lut[1],KEINE_PIXELFMT_RGB15);
 	game_loadimg(gram,2,game_img_lut[2],KEINE_PIXELFMT_RGB15);
+	game_loadimg(gram,3,game_img_lut[3],KEINE_PIXELFMT_RGB15);
 }
 keine *game_loadimg(game *gram,u32 id,const char *fname,keine_pixelfmt fmt)
 {
@@ -105,16 +108,16 @@ void game_draw(game *gram)
 	// vars
 	bios *io = gram->io;
 	player *plrs = gram->plrs;
-	kanako *suwa_objs = &gram->suwa_objs;
+	kanako *suwa = &gram->suwa_objs;
 	uint32_t time = io->time;
 	// drawin maps
 	game_drawtestmap(gram);
 	// drawin players
 	player_draw(&plrs[0]);
 	// drawin objs
-	for(u32 i=0; i<suwa_objs->len; i++)
+	for(u32 i=0; i<suwa->len; i++)
 	{
-		suwako *obj = &suwa_objs->objs[i];
+		suwako *obj = &suwa->objs[i];
 		if(!obj->stat.dead)
 		{
 			s32 x = fx2int(obj->pos.x,12);
@@ -125,8 +128,37 @@ void game_draw(game *gram)
 			mokou_spr16(raymo,io->fb,src,attr);
 		}
 	}
+	// text drawin
+	char alivestr[0x20],spdstr[0x20];
+	sprintf(alivestr,"alive: $%04X/$%04X",suwa->alive,suwa->len);
+	sprintf(spdstr,"gsp: $%08X\n",plrs[0].gsp);
+	game_drawdebugtxt(gram,alivestr,0,0);
+	game_drawdebugtxt(gram,spdstr,0,8);
 }
-
+void game_drawdebugtxt(game *gram,const char *txt,s32 x,s32 y)
+{
+	// vars
+	keine *borefont = &gram->img_bank[GAME_IMG_BOREFONT];
+	s32 ox = 0;
+	s32 oy = 0;
+	u32 len = strlen(txt);
+	// drawin
+	for(u32 i=0; i<len; i++)
+	{
+		char c = txt[i];
+		if(c == '\n')
+		{ ox = 0; oy++; }
+		else {
+			s32 dx = x + (ox*8);
+			s32 dy = y + (oy*8);
+			mokou_sprattr attr = { {dx,dy},0b00,0xFFFF, 0,0 };
+			SDL_Rect srcrect = { (c&0xF)*8,(c>>4)*8,8,8 };
+			mokou_spr16( borefont,gram->io->fb,srcrect,attr );
+		
+			ox++;
+		}
+	}
+}
 void game_drawtestmap(game *gram)
 {
 	// vars

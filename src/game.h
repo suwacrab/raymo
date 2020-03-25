@@ -12,6 +12,7 @@ typedef enum game_img {
 	GAME_IMG_TESTTEX = 0,
 	GAME_IMG_TESTTILE = 1,
 	GAME_IMG_RAYMO = 2,
+	GAME_IMG_BOREFONT = 3
 } game_img;
 
 typedef struct game
@@ -30,7 +31,7 @@ typedef struct game
 } game;
 
 /*	--	LUTs	--	*/
-extern const char *game_img_lut[0x100];
+extern const char *game_img_lut[];
 
 /*	--	main funcs	--	*/
 extern void game_init(game *gram,bios *io);
@@ -42,6 +43,7 @@ extern void game_updt(game *gram);
 
 /*	--	draw funcs	--	*/
 extern void game_draw(game *gram);
+extern void game_drawdebugtxt(game *gram,const char *txt,s32 x,s32 y);
 extern void game_drawtestmap(game *gram);
 
 #endif
