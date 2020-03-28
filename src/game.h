@@ -18,7 +18,6 @@ typedef enum game_img {
 	GAME_IMG_TESTTILE = 1,
 	GAME_IMG_RAYMO = 2,
 	GAME_IMG_BOREFONT = 3,
-	GAME_IMG_RAYMO4 = 4
 } game_img;
 
 typedef struct game

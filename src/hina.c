@@ -12,6 +12,21 @@ hina *hina_init(hina *kagi,game *gram,HINA_SIZE size)
 	kagi->kmap.h = 0;
 	kagi->kmap.m = NULL;
 }
+void hina_drawtile(hina *kagi,mokou_sprattr *attr,u8 tile,s32 dx,s32 dy)
+{
+	attr->pos.x = hina_pos(kagi->size,dx);
+	attr->pos.y = hina_pos(kagi->size,dy);
+	s32 wide = hina_wide(kagi->size);
+	SDL_Rect srcrect = {
+		.x =(tile&15) * wide,
+		.y =(tile>>4) * wide,
+		.w =wide, .h =wide
+	};
+
+	mokou_spr16(
+		kagi->img,kagi->gram->io->fb,srcrect,attr
+	);
+}
 
 void hina_drawmap(hina *kagi)
 {
@@ -32,11 +47,7 @@ void hina_drawmap(hina *kagi)
 			tile = nitori_get(kmap,x,y);
 			if(tile>0)
 			{
-				attr.pos.x = hina_pos(size,x);
-				attr.pos.y = hina_pos(size,y);
-				srcrect.x = (tile&15) * hina_wide(size);
-				srcrect.y = (tile>>4) * hina_wide(size);
-				mokou_spr16(kagi->img,io->fb,srcrect,attr);
+				hina_drawtile(kagi,&attr,tile,x,y);
 			}
 		}
 	}	

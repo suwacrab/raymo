@@ -41,6 +41,7 @@ void mokou_spr16(
 	s32 dx = attr.pos.x;
 	s32 dy = attr.pos.y;
 	
+	RGB16 *srcpal = src->pal1;
 	u16 old_fillp = dst->fillp;
 	dst->fillp = attr.fillp;
 
@@ -54,7 +55,13 @@ void mokou_spr16(
 			{
 				s32 gx = xf ? ((srcW-1)-x) : x;
 				s32 gy = yf ? ((srcH-1)-y) : y;
-				RGB16 pix = mokou_pget16(src,gx+srcX,gy+srcY);
+				// pixel setting
+				RGB16 pix;
+				switch(src->fmt)
+				{
+					case KEINE_PIXELFMT_PAL4: pix = srcpal[mokou_pget4(src,gx+srcX,gy+srcY)]; break;
+					case KEINE_PIXELFMT_RGB15: pix = mokou_pget16(src,gx+srcX,gy+srcY); break;
+				}
 				if(pix!=0) mokou_pset16(dst,lx,ly,pix);
 			}
 		}

@@ -27,6 +27,7 @@ typedef struct hina
 
 /* -- main funcs -- */
 extern hina *hina_init(hina *kagi,game *gram,HINA_SIZE size);
+extern void hina_drawtile(hina *kagi,mokou_sprattr *attr,u8 tile,s32 dx,s32 dy);
 extern void hina_drawmap(hina *kagi);
 
 /* -- inline funcs -- */

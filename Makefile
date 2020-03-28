@@ -20,3 +20,7 @@ clean:
 	rm $(OBJS)
 	rm $(NAME)
 
+rebuild:
+	make
+
+

@@ -80,15 +80,14 @@ void player_updtmove(player *plr)
 	// get current tile
 	VEC2 rpos = *pos; // rounded plr pos
 	vec2_shr(&rpos,12); // $FFFFF.FFF > $FFFFF
-	bool midair = false;
 	u8 hitA,hitB; // bottom left,bottom right
 	u8 hitC,hitD; // mid left, mid right
 	u8 hitE,hitF; // top left, top right
 	s32 Bwid = 2; // __B__ottom width.
 	s32 Bhei = 8; // __B__ottom height.
-	VEC2 posA = { rpos.x-Bwid,rpos.y+Bhei };
+	VEC2 posA = { rpos.x-Bwid,rpos.y+Bhei+1 };
 	VEC2 posB = { rpos.x+Bwid,rpos.y+Bhei };
-	hitA = nitori_get(kmap,posA.x>>4,(rpos.y+Bhei)>>4);
+	hitA = nitori_get(kmap,posA.x>>4,posA.y>>4);
 	hitB = nitori_get(kmap,posB.x>>4,posB.y>>4);
 	
 	u16 tileang = 0;
@@ -129,45 +128,12 @@ void player_updtmove(player *plr)
 	}
 	
 	// A&B handling
-	midair = !((hitA>0) || (hitB>0));
+	bool AorB = !((hitA>0) || (hitB>0));
 	if( !midair )
 	{ // if A or B was hit (grounded)...
-		s32 hitindA = 0; s32 hitindB = 0;
-		s32 heightA = 0; s32 heightB = 0;
-		bool hitgrnd = false;
-		// moving
-		if( hitA>0 )
-		{
-			hitindA = (posA.x) - ((posA.x>>4)<<4);
-			heightA = height_lut[hitA][hitindA];
-			tileang = ang_lut[hitA];
-			// tile settin
-			s32 tpos = (posA.y>>4)<<4; // round to tile pos
-			s32 fpos = ((tpos+16)-heightA); // convert to foot pos
-			if( posA.y >= fpos ) // if in height...
-			{ hitgrnd = true; pos->y = int2fx(fpos-Bhei,12); }
-			else // if not in height...
-			{ }//vel->y += PLR_GRV; }
-		}
-		if( 0 )
-		{
-			hitindB = (posB.x) - ((posB.x>>4)<<4);
-			heightB = height_lut[hitB][hitindB];
-			tileang = ang_lut[hitB];
-			// tile settin
-			s32 tpos = (posB.y>>4)<<4;
-			s32 fpos = ((tpos+16)-heightB);
-			// if posB is in tile range...
-			//if(posB.y > fpos)
-			//{ pos->y = int2fx(fpos-Bhei-2,12); }
-		}
-		
-		if( hitgrnd )
-		{
 			vel->x = fix_mul(lu_cos(tileang),*gsp,12);
 			vel->y = fix_mul(lu_sin(tileang),*gsp,12);
 			if( joyp->a ) vel->y -= PLR_JMP*8;
-		}
 		// drawing
 		char hittxt[0x100];
 		sprintf(hittxt,"indA: %d\nindB: %d\nhiA: %d\nhiB: %d\n",
@@ -210,8 +176,8 @@ void player_drawchar(player *plr)
 	u32 flip = (~plr->dir)&1;
 	// drawing
 	u32 frame = (plr->walkframe>>3)%4;
-	mokou_sprattr attr = { {dx-12,dy-12},flip<<1,0xFFFF, 0,0 };
-	SDL_Rect src = { frame*24,0,24,24 };
+	mokou_sprattr attr = { {dx-16,dy-16},flip<<1,0xFFFF, 0,0 };
+	SDL_Rect src = { frame*32,0,32,32 };
 	mokou_spr16(raymo,io->fb,src,attr);
 	mokou_pset16(io->fb,dx,dy,RGB15(0,31,0));
 }
