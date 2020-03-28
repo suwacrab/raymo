@@ -23,10 +23,12 @@ void game_init(game *gram,bios *io)
 	// player init
 	printf("<player size> $%04lX\n",sizeof(player));
 	gram->plrs = (player*)gram->plrmem;
-	for(u32 i=0; i<4; i++)
-	{ player_init(&gram->plrs[i],gram); }
 	VEC2 offpos = { int2fx(32,12),int2fx(32,12) };
-	vec2_add(&gram->plrs[0].pos,&offpos);
+	for(u32 i=0; i<4; i++)
+	{ 
+		player_init(&gram->plrs[i],gram); 
+		vec2_add(&gram->plrs[i].pos,&offpos);
+	}
 	// obj init
 	kanako *suwa_objs = kanako_init(&gram->suwa_objs,gram->obj_mem,0x200);
 	// hina init
@@ -36,14 +38,14 @@ void game_init(game *gram,bios *io)
 	hmap->kmap.w = HMAP_W;
 	hmap->kmap.h = HMAP_H;
 	hmap->img = &gram->img_bank[GAME_IMG_TESTTILE];
-	for(u32 x=0; x<0x20; x++)
+	for(u32 x=0; x<HMAP_W; x++)
 		nitori_set(&hmap->kmap,x,6,(x>>1)+1);
-	nitori_set(&hmap->kmap,4,5,4);
+	nitori_set(&hmap->kmap,4,5, 1);
 	// asset loading
-	game_loadimg(gram,0,game_img_lut[0],KEINE_PIXELFMT_RGB15);
-	game_loadimg(gram,1,game_img_lut[1],KEINE_PIXELFMT_RGB15);
-	game_loadimg(gram,2,game_img_lut[2],KEINE_PIXELFMT_PAL4);
-	game_loadimg(gram,3,game_img_lut[3],KEINE_PIXELFMT_RGB15);	
+	game_loadimg(gram,0,game_img_lut[GAME_IMG_TESTTEX],KEINE_PIXELFMT_RGB15);
+	game_loadimg(gram,1,game_img_lut[GAME_IMG_TESTTILE],KEINE_PIXELFMT_RGB15);
+	game_loadimg(gram,2,game_img_lut[GAME_IMG_RAYMO],KEINE_PIXELFMT_PAL4);
+	game_loadimg(gram,3,game_img_lut[GAME_IMG_BOREFONT],KEINE_PIXELFMT_PAL4);	
 
 	// come on, you got this!
 	printf("GRAM usage: $%08lX\n",sizeof(game));
@@ -62,7 +64,8 @@ void game_run(game *gram)
 	while( !io->quit )
 	{
 		// update
-		bios_clearscreen(io);
+		//bios_clearscreen(io);
+		mokou_rect16(io->fb,0,0,io->w,io->h,RGB15(4,12,20));
 		bios_updt(io);
 		game_updt(gram);
 		// draw
@@ -79,7 +82,8 @@ void game_updt(game *gram)
 	player *plrs = gram->plrs;
 	kanako *suwa_objs = &gram->suwa_objs;
 	// player shit
-	player_updt(&plrs[0]);
+	for( u32 i=0; i<1; i++)
+	player_updt(&plrs[i]);
 	// obj shit
 	if(	(io->time&15) == 0 ) 
 	{  
@@ -111,8 +115,6 @@ void game_updt(game *gram)
 			if( !in_range(x,-32,io->w+32) ) kanako_del(suwa_objs,i);
 		}
 	}
-	if(last_alive != suwa_objs->alive)
-	{ /* printf("<suwa_obj alive> $%04X\n",suwa_objs->alive); */ }
 }
 
 /*	--	draw funcs	--	*/
@@ -121,12 +123,14 @@ void game_draw(game *gram)
 	// vars
 	bios *io = gram->io;
 	player *plrs = gram->plrs;
+	player *p1 = &plrs[0];
 	kanako *suwa = &gram->suwa_objs;
 	uint32_t time = io->time;
 	// drawin maps
 	game_drawmap(gram);
 	// drawin players
-	player_draw(&plrs[0]);
+	for( u32 i=0; i<4; i++)
+	player_draw(&plrs[i]);
 	// drawin objs
 	for(u32 i=0; i<suwa->len; i++)
 	{
@@ -136,18 +140,10 @@ void game_draw(game *gram)
 			s32 x = fx2int(obj->pos.x,12);
 			s32 y = fx2int(obj->pos.y,12);
 			keine *raymo = &gram->img_bank[GAME_IMG_RAYMO];
-			mokou_sprattr attr = { {x-12,y-12},0b00,lu_fade(obj->data[2]<<9), 0,0 };
-			SDL_Rect src = { ((x>>4)&3)*24,0,24,24 };
+			mokou_sprattr attr = { {x-16,y-16},0b00,lu_fade(obj->data[2]<<9), 0,0 };
+			SDL_Rect src = { ((x>>4)&3)*32,0,32,32 };
 			mokou_spr16(raymo,io->fb,src,attr);
 		}
-	}
-	// text drawin
-	{
-		char alivestr[0x20],spdstr[0x20];
-		sprintf(alivestr,"alive: $%04X/$%04X",suwa->alive,suwa->len);
-		sprintf(spdstr,"gsp: $%08X\n",plrs[0].gsp);
-		//game_drawdebugtxt(gram,alivestr,0,0);
-		game_drawdebugtxt(gram,spdstr,0,0);
 	}
 }
 void game_drawdebugtxt(game *gram,const char *txt,s32 x,s32 y)

@@ -2,7 +2,7 @@
 #include "bios.h"
 #include "game.h"
 
-const u32 WIDTH = 256;
+const u32 WIDTH = 320;
 const u32 HEIGHT = 192;
 
 // sdl vars

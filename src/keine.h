@@ -58,6 +58,7 @@ INLINE u32 keine_fillp(keine *yago,u32 x,u32 y)
 	u32 tbit = (yago->fillp>>ind)&1;
 	return tbit;
 }
+
 INLINE size_t keine_imgsize(keine *yago)
 { return keine_initfmts[yago->fmt](yago); }
 

@@ -16,10 +16,10 @@
 #define PLR_DEC (0x00000800)
 // gravity (0.21875)
 #define PLR_GRV (0x00000380)
-// jump speed (7.5)
-#define PLR_JMP (0x00000780)
+// jump speed (4.25)
+#define PLR_JMP (0x00004400)
 // top speed (40)
-#define PLR_TOP (0x00002800)
+#define PLR_TOP (0x00008000)
 
 /*	--	structs	--	*/
 typedef struct player_joyp {
@@ -40,9 +40,11 @@ typedef struct player {
 	VEC2 pos,vel; // pos & x/y speed, 20.12 fixed point
 	FIXED gsp; // ground speed, 20.12
 	u16 ang; // angle in radians
-	s8 hp,maxhp; // health & max health
+	u16 hp,maxhp; // health & max health
+	u16 mp,maxmp; // mana & max mana
 	s8 dir; // direction player's facing
-	u32 walking;
+	bool jumped : 1;
+	bool canjmp : 1;
 	// animation
 	u32 walkframe;
 } player;

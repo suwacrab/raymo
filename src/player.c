@@ -26,8 +26,10 @@ void player_init(player *plr,game *gram)
 {
 	// clearing
 	plr->gram = gram;
-	plr->maxhp = 0x10;
+	plr->maxhp = 0x200;
 	plr->hp = plr->maxhp;
+	plr->jumped = false;
+	plr->canjmp = true;
 
 	vec2_set(&plr->pos,0,0);
 	vec2_set(&plr->vel,0,0);
@@ -85,11 +87,15 @@ void player_updtmove(player *plr)
 	u8 hitE,hitF; // top left, top right
 	s32 Bwid = 2; // __B__ottom width.
 	s32 Bhei = 8; // __B__ottom height.
-	VEC2 posA = { rpos.x-Bwid,rpos.y+Bhei+1 };
+	VEC2 posA = { rpos.x-Bwid,rpos.y+Bhei };
 	VEC2 posB = { rpos.x+Bwid,rpos.y+Bhei };
+	VEC2 posC = { rpos.x-Bwid,rpos.y };
+	VEC2 posD = { rpos.x+Bwid,rpos.y };
 	hitA = nitori_get(kmap,posA.x>>4,posA.y>>4);
 	hitB = nitori_get(kmap,posB.x>>4,posB.y>>4);
-	
+	hitC = nitori_get(kmap,posC.x>>4,posC.y>>4);
+	hitD = nitori_get(kmap,posD.x>>4,posD.y>>4);
+
 	u16 tileang = 0;
 	// update velocity based on movement
 	s32 spd = PLR_ACC;
@@ -128,24 +134,45 @@ void player_updtmove(player *plr)
 	}
 	
 	// A&B handling
-	bool AorB = !((hitA>0) || (hitB>0));
-	if( !midair )
+	bool AorB = ((hitA>0) || (hitB>0));
+	bool CorD = ((hitC>0) || (hitD>0));
+	bool midair = false;
+	if( AorB )
 	{ // if A or B was hit (grounded)...
-			vel->x = fix_mul(lu_cos(tileang),*gsp,12);
-			vel->y = fix_mul(lu_sin(tileang),*gsp,12);
-			if( joyp->a ) vel->y -= PLR_JMP*8;
-		// drawing
-		char hittxt[0x100];
-		sprintf(hittxt,"indA: %d\nindB: %d\nhiA: %d\nhiB: %d\n",
-			hitindA,hitindB,heightA,heightB
-		);
-		game_drawdebugtxt(gram,"ground",0,8);
-		game_drawdebugtxt(gram,hittxt,0,16);
+			vel->x = *gsp;
+			vel->y = 0;
+			// pos setting
+			s32 tilepos = ((posA.y>>4)<<4) - Bhei;
+			pos->y = int2fx(tilepos,12);
+			// jumping
+			plr->jumped = false;
+			if( (!joyp->a) && (!plr->canjmp) ) plr->canjmp = true;
+			if( joyp->a && plr->canjmp )
+			{ vel->y -= PLR_JMP; plr->canjmp = false; plr->jumped = true; }
 	} else { // if neither A nor B was hit (midair)...
-		game_drawdebugtxt(gram,"midair",0,8);
+		if( (!joyp->a) && plr->jumped )
+		{ // if not holding A & player jumped...
+			if(vel->y < (-2*int2fx(1,12)))
+			{ // if y < -4...
+				vel->y = ( -2*int2fx(1,12));
+				plr->jumped  = false;
+			}
+		}
 		vel->y += PLR_GRV;
 		if( joyp->right ) vel->x += PLR_ACC;
+		if( joyp->left ) vel->x -= PLR_ACC;
+		*gsp = vel->x;
 	}
+	if( CorD )
+	{
+		if( hitC>0 ) // if C was hit...
+		{ // push right
+			s32 tilepos = ((posC.x>>4)<<4) + 17 + Bwid;
+			pos->x = int2fx(tilepos,12);
+			vel->x = 0;
+			*gsp = 0;
+		}
+	}	
 	
 	vec2_add(pos,vel);
 	
@@ -180,6 +207,19 @@ void player_drawchar(player *plr)
 	SDL_Rect src = { frame*32,0,32,32 };
 	mokou_spr16(raymo,io->fb,src,attr);
 	mokou_pset16(io->fb,dx,dy,RGB15(0,31,0));
+	// text drawin
+	char plrtxt0[0x20];
+	char plrtxt1[] = "  [    ]\n  [    ]";
+	sprintf(plrtxt0,"HP[%04d]\nMP[%04d]",
+		plr->hp,plr->mp
+	);
+	
+	// --> palette shiftin & draw
+	keine *font = &gram->img_bank[GAME_IMG_BOREFONT];
+	game_drawdebugtxt(gram,plrtxt0,16,0);
+	font->pal1[1] = RGB15(22,15,15);
+	game_drawdebugtxt(gram,plrtxt1,16,0);
+	memcpy(font->pal1,font->pal0,sizeof(RGB16)*0x10);
 }
 
 

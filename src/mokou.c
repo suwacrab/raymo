@@ -27,6 +27,15 @@ void mokou_pset16(keine *yago,s32 x,s32 y,RGB16 c)
 		*mokou_pread16(yago,x,y) = c;
 	}
 }
+void mokou_rect16(keine *yago,s32 px,s32 py,s32 dx,s32 dy,RGB16 c)
+{
+	if(dx > (s32)yago->w) dx = yago->w+1;
+	if(dy > (s32)yago->h) dy = yago->h+1;
+	for(s32 y=py; y<dy; y++)
+		for(s32 x=px; x<dx; x++)
+				*mokou_pread16(yago,x,y) = c;
+}
+
 
 /*	--	fill functions	--	*/
 void mokou_spr16(

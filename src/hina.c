@@ -27,7 +27,6 @@ void hina_drawtile(hina *kagi,mokou_sprattr *attr,u8 tile,s32 dx,s32 dy)
 		kagi->img,kagi->gram->io->fb,srcrect,attr
 	);
 }
-
 void hina_drawmap(hina *kagi)
 {
 	// vars

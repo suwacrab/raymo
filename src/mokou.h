@@ -17,6 +17,7 @@ extern RGB8 mokou_pget8(keine* yago,s32 x, s32 y);
 extern RGB16 *mokou_pread16(keine* yago,u32 x, u32 y);
 extern void mokou_pset16(keine* yago,s32 x, s32 y,RGB16 c);
 extern RGB16 mokou_pget16(keine* yago,s32 x, s32 y);
+extern void mokou_rect16(keine *yago,s32 px,s32 py,s32 dx,s32 dy,RGB16 c);
 
 /*	--	fill functions	--	*/
 extern void mokou_spr16(
